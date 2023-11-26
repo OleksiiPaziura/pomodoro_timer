@@ -3,37 +3,40 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
-    // BASE SETTINGS
-    QWidget *central_widget = new QWidget;
-    main_layout = new QVBoxLayout;
-    timeout_counter = 0;
+    // WINDOW SETTINGS
+    timer = new QTimer(this);
+    menu = new QMenu("File");
+    settings_menu = new QAction("Settings");
+    menu->addAction(settings_menu);
+    menuBar()->addMenu(menu);
 
-    sound.setSource(QUrl::fromLocalFile("../sounds/sound.wav"));
+
+
+    // SETTINGS
+    Settings::pomodoro_time = 5;
+    Settings::current_sound.setSource(QUrl::fromLocalFile("../sounds/sound.wav"));
+    timeout_counter = 0;
 
 
 
     // WIDGETS
-    time_edit = new QLineEdit;
-    time_edit->setPlaceholderText("Set time");
-    time_edit->setValidator(new QIntValidator);
-
-    start_btn = new QPushButton("Stop in seconds");
+    start_btn = new QPushButton("Start");
 
 
 
     // LAYOUTS
+    central_widget = new QWidget;
+    main_layout = new QVBoxLayout;
     setCentralWidget(central_widget);
     central_widget->setLayout(main_layout);
 
-    main_layout->addWidget(time_edit);
     main_layout->addWidget(start_btn);
-
-    timer = new QTimer(this);
 
 
     // CONNECTIONS
-    connect(start_btn, SIGNAL(clicked()), this, SLOT(startTimer()));
+    connect(settings_menu, SIGNAL(triggered()), this, SLOT(openSettings()));
 
+    connect(start_btn, SIGNAL(clicked()), this, SLOT(startTimer()));
     connect(timer, SIGNAL(timeout()), this, SLOT(onTimeout()));
 }
 
@@ -46,11 +49,18 @@ void MainWindow::onTimeout()
 {
     qDebug() << QString::number(timeout_counter + 1) + " sec";
 
-    if (++timeout_counter >= time_edit->text().toInt())
+    if (++timeout_counter >= Settings::pomodoro_time)
     {
         timeout_counter	= 0;
-        sound.play();
+        Settings::current_sound.play();
         timer->stop();
     }
+}
+
+void MainWindow::openSettings()
+{
+    SettingsForm *sf = new SettingsForm;
+    sf->setModal(true);
+    sf->show();
 }
 

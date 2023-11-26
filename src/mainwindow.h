@@ -7,17 +7,21 @@
 #include <QTimer>
 #include <QSoundEffect>
 
+#include "settings.h"
+#include "settings_form.h"
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 private:
     QVBoxLayout *main_layout;
+    QWidget *central_widget;
 
-    QLineEdit *time_edit;
+    QMenu *menu;
+    QAction *settings_menu;
+
     QPushButton *start_btn;
-
-    QSoundEffect sound;
 
     QTimer *timer;
     int timeout_counter;
@@ -28,5 +32,6 @@ public:
 public slots:
     void startTimer();
     void onTimeout();
+    void openSettings();
 };
 #endif // MAINWINDOW_H
