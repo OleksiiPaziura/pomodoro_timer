@@ -62,24 +62,40 @@ MainWindow::MainWindow(QWidget *parent)
     connect(dial, SIGNAL(valueChanged(int)), this, SLOT(onDialChange(int)));
 }
 
+QString MainWindow::convertTime(int total_seconds)
+{
+    QString minutes = QString::number(total_seconds / 60);
+    QString seconds = QString::number(total_seconds % 60);
+
+    if (minutes.size() == 1)
+        minutes.push_front("0");
+
+    if (seconds.size() == 1)
+        seconds.push_front("0");
+
+    return minutes + ":" + seconds;
+}
+
 void MainWindow::startTimer()
 {
-
-//    if (timeout_counter == 0)
-//    {
-//        timer->start(1000);
-//        start_btn->setText("Pause");
-//    }
-    ++pause_counter;
-    if (timeout_counter == 0 || pause_counter % 2 == 0)
+    if (timeout_counter == 0)
     {
+        dial->setRange(0, Settings::pomodoro_time);
         timer->start(1000);
         start_btn->setText("Pause");
     }
-    else if (pause_counter % 2 != 0)
+    else
     {
-        timer->stop();
-        start_btn->setText("Continue");
+        if (++pause_counter % 2 == 0)
+        {
+            timer->start(1000);
+            start_btn->setText("Pause");
+        }
+        else
+        {
+            timer->stop();
+            start_btn->setText("Continue");
+        }
     }
 }
 
@@ -87,7 +103,7 @@ void MainWindow::stopTimer()
 {
     timer->stop();
     timeout_counter	= 0;
-    time_left->setText("0");
+    time_left->setText(convertTime(Settings::pomodoro_time - timeout_counter));
     dial->setValue(0);
     start_btn->setText("Start");
 }
@@ -95,15 +111,14 @@ void MainWindow::stopTimer()
 void MainWindow::onTimeout()
 {
     dial->setValue(++timeout_counter);
-    time_left->setText(QString::number(Settings::pomodoro_time - timeout_counter));
+    time_left->setText(convertTime(Settings::pomodoro_time - timeout_counter));
 
     if (timeout_counter > Settings::pomodoro_time)
     {
         timeout_counter	= 0;
-        time_left->setText("0");
+        time_left->setText(convertTime(Settings::pomodoro_time - timeout_counter));
         dial->setValue(0);
         start_btn->setText("Start");
-
         Settings::current_sound.play();
         timer->stop();
     }
@@ -112,7 +127,7 @@ void MainWindow::onTimeout()
 void MainWindow::onDialChange(int value)
 {
     timeout_counter = dial->value();
-    time_left->setText(QString::number(Settings::pomodoro_time - timeout_counter));
+    time_left->setText(convertTime(Settings::pomodoro_time - value));
 }
 
 void MainWindow::openSettings()
@@ -127,4 +142,3 @@ void MainWindow::openCredits()
 {
     QMessageBox::information(this, "Credits", "Version: 0.0.1\nCreated by: Oleksii Paziura");
 }
-

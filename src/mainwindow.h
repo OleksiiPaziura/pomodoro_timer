@@ -33,6 +33,7 @@ private:
 
 public:
     MainWindow(QWidget *parent = nullptr);
+    QString convertTime(int total_seconds);
 
 public slots:
     void startTimer();
