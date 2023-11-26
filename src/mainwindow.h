@@ -19,7 +19,8 @@ private:
     QWidget *central_widget;
 
     QMenu *menu;
-    QAction *settings_menu;
+    QAction *settings_action;
+    QAction *credits_action;
 
     QPushButton *start_btn;
 
@@ -32,6 +33,8 @@ public:
 public slots:
     void startTimer();
     void onTimeout();
+
     void openSettings();
+    void openCredits();
 };
 #endif // MAINWINDOW_H

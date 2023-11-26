@@ -8,8 +8,10 @@ MainWindow::MainWindow(QWidget *parent)
 
     timer = new QTimer(this);
     menu = new QMenu("File");
-    settings_menu = new QAction("Settings");
-    menu->addAction(settings_menu);
+    settings_action = new QAction("Settings");
+    credits_action = new QAction("Credits");
+    menu->addAction(settings_action);
+    menu->addAction(credits_action);
     menuBar()->addMenu(menu);
 
 
@@ -36,7 +38,8 @@ MainWindow::MainWindow(QWidget *parent)
 
 
     // CONNECTIONS
-    connect(settings_menu, SIGNAL(triggered()), this, SLOT(openSettings()));
+    connect(settings_action, SIGNAL(triggered()), this, SLOT(openSettings()));
+    connect(credits_action, SIGNAL(triggered()), this, SLOT(openCredits()));
 
     connect(start_btn, SIGNAL(clicked()), this, SLOT(startTimer()));
     connect(timer, SIGNAL(timeout()), this, SLOT(onTimeout()));
@@ -69,5 +72,10 @@ void MainWindow::openSettings()
     SettingsForm *sf = new SettingsForm;
     sf->setModal(true);
     sf->show();
+}
+
+void MainWindow::openCredits()
+{
+    QMessageBox::information(this, "Credits", "Version: 0.0.1\nCreated by: Oleksii Paziura");
 }
 
