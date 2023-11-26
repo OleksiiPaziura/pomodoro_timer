@@ -22,17 +22,24 @@ private:
     QAction *settings_action;
     QAction *credits_action;
 
+    QLabel *time_left;
+    QDial *dial;
     QPushButton *start_btn;
+    QPushButton *stop_btn;
 
     QTimer *timer;
     int timeout_counter;
+    int pause_counter;
 
 public:
     MainWindow(QWidget *parent = nullptr);
 
 public slots:
     void startTimer();
+    void stopTimer();
+
     void onTimeout();
+    void onDialChange(int value);
 
     void openSettings();
     void openCredits();
