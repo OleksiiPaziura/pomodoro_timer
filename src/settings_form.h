@@ -13,6 +13,21 @@ private:
     QGridLayout *main_layout;
     QHBoxLayout *buttons_layout;
 
+    QLabel *pomodoro_lbl;
+    QSlider *pomodoro_time_slider;
+    QLabel *pomodoro_str;
+
+    QLabel *short_lbl;
+    QSlider *short_break_slider;
+    QLabel *short_break_str;
+
+    QLabel *long_lbl;
+    QSlider *long_break_slider;
+    QLabel *long_break_str;
+
+    QLabel *auto_settings_lbl;
+    QCheckBox *auto_settings;
+
     QPushButton *accept_btn;
     QPushButton *cancel_btn;
 
@@ -22,6 +37,10 @@ public:
 public slots:
     void save_changings();
     void discard_changings();
+
+    void pomodoro_slider_changed(int value);
+    void short_slider_changed(int value);
+    void long_slider_changed(int value);
 
 signals:
 };

@@ -13,6 +13,7 @@ public:
     static int short_break_time;
     static int long_break_time;
     static QSoundEffect current_sound;
+    static QString locale;
 };
 
 #endif // SETTINGS_H
