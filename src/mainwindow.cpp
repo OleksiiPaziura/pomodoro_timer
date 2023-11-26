@@ -65,6 +65,7 @@ void MainWindow::onTimeout()
 
 void MainWindow::openSettings()
 {
+    Settings::current_sound.stop();
     SettingsForm *sf = new SettingsForm;
     sf->setModal(true);
     sf->show();

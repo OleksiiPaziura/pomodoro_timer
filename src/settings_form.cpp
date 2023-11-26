@@ -37,6 +37,7 @@ SettingsForm::SettingsForm(QDialog *parent)
     sound_play = new QPushButton("Play");
     sound_name = new QLabel(Settings::current_sound.source().fileName());
     sound_change = new QPushButton("Change sound");
+    old_sound_path = Settings::current_sound.source().path();
 
     auto_settings_lbl = new QLabel("Auto settings");
     auto_settings = new QCheckBox("Auto set");
@@ -74,6 +75,9 @@ SettingsForm::SettingsForm(QDialog *parent)
     connect(cancel_btn, SIGNAL(clicked()), this, SLOT(close()));
     connect(accept_btn, SIGNAL(clicked()), this, SLOT(save_changings()));
 
+    connect(sound_play, SIGNAL(clicked()), this, SLOT(play_sound()));
+    connect(sound_change, SIGNAL(clicked()), this, SLOT(change_sound()));
+
     connect(pomodoro_time_slider, SIGNAL(valueChanged(int)), this, SLOT(pomodoro_slider_changed(int)));
     connect(short_break_slider, SIGNAL(valueChanged(int)), this, SLOT(short_slider_changed(int)));
     connect(long_break_slider, SIGNAL(valueChanged(int)), this, SLOT(long_slider_changed(int)));
@@ -85,6 +89,23 @@ void SettingsForm::save_changings()
     Settings::short_break_time = short_break_slider->value();
     Settings::long_break_time = long_break_slider->value();
     close();
+}
+
+void SettingsForm::play_sound()
+{
+    Settings::current_sound.play();
+}
+
+void SettingsForm::change_sound()
+{
+    Settings::current_sound.stop();
+
+    QFileDialog *select_file = new QFileDialog;
+
+    Settings::current_sound.setSource(QUrl::fromLocalFile(
+        select_file->getOpenFileName(this, "Sound file", "../sounds", "Sound files (*.wav)")));
+
+    sound_name->setText(Settings::current_sound.source().fileName());
 }
 
 void SettingsForm::pomodoro_slider_changed(int value)

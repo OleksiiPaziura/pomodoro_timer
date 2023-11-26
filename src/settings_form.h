@@ -29,6 +29,7 @@ private:
     QPushButton *sound_play;
     QLabel *sound_name;
     QPushButton *sound_change;
+    QString old_sound_path;
 
     QLabel *auto_settings_lbl;
     QCheckBox *auto_settings;
@@ -41,6 +42,9 @@ public:
 
 public slots:
     void save_changings();
+
+    void play_sound();
+    void change_sound();
 
     void pomodoro_slider_changed(int value);
     void short_slider_changed(int value);
