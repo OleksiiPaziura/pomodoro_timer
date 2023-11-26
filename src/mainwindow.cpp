@@ -8,12 +8,11 @@ MainWindow::MainWindow(QWidget *parent)
 
     timer = new QTimer(this);
     menu = new QMenu("File");
-    settings_action = new QAction("Settings");
-    credits_action = new QAction("Credits");
+    settings_action = new QAction(tr("Settings"));
+    credits_action = new QAction(tr("Credits"));
     menu->addAction(settings_action);
     menu->addAction(credits_action);
     menuBar()->addMenu(menu);
-
 
 
 
@@ -34,8 +33,8 @@ MainWindow::MainWindow(QWidget *parent)
     time_left->setFont(QFont("Arial", 20));
     time_left->setMaximumHeight(25);
 
-    start_btn = new QPushButton("Start");
-    stop_btn = new QPushButton("Stop");
+    start_btn = new QPushButton(tr("Start"));
+    stop_btn = new QPushButton(tr("Stop"));
 
 
 
@@ -78,23 +77,24 @@ QString MainWindow::convertTime(int total_seconds)
 
 void MainWindow::startTimer()
 {
-    if (timeout_counter == 0)
+    Settings::is_round = true;
+    if (start_btn->text() == tr("Start"))
     {
         dial->setRange(0, Settings::pomodoro_time);
         timer->start(1000);
-        start_btn->setText("Pause");
+        start_btn->setText(tr("Pause"));
     }
     else
     {
         if (++pause_counter % 2 == 0)
         {
             timer->start(1000);
-            start_btn->setText("Pause");
+            start_btn->setText(tr("Pause"));
         }
         else
         {
             timer->stop();
-            start_btn->setText("Continue");
+            start_btn->setText(tr("Continue"));
         }
     }
 }
@@ -105,11 +105,13 @@ void MainWindow::stopTimer()
     timeout_counter	= 0;
     time_left->setText(convertTime(Settings::pomodoro_time - timeout_counter));
     dial->setValue(0);
-    start_btn->setText("Start");
+    start_btn->setText(tr("Start"));
+    Settings::is_round = false;
 }
 
 void MainWindow::onTimeout()
 {
+    Settings::is_round = true;
     dial->setValue(++timeout_counter);
     time_left->setText(convertTime(Settings::pomodoro_time - timeout_counter));
 
@@ -118,8 +120,9 @@ void MainWindow::onTimeout()
         timeout_counter	= 0;
         time_left->setText(convertTime(Settings::pomodoro_time - timeout_counter));
         dial->setValue(0);
-        start_btn->setText("Start");
+        start_btn->setText(tr("Start"));
         Settings::current_sound.play();
+        Settings::is_round = false;
         timer->stop();
     }
 }
@@ -140,5 +143,5 @@ void MainWindow::openSettings()
 
 void MainWindow::openCredits()
 {
-    QMessageBox::information(this, "Credits", "Version: 0.0.1\nCreated by: Oleksii Paziura");
+    QMessageBox::information(this, tr("Credits"), tr("Version: 0.0.1\nCreated by: Oleksii Paziura"));
 }

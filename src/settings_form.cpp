@@ -18,33 +18,53 @@ SettingsForm::SettingsForm(QDialog *parent)
 
 
     // WIDGETS
-    pomodoro_lbl = new QLabel("Pomodoro time:");
+    pomodoro_lbl = new QLabel(tr("Pomodoro time:"));
     pomodoro_time_slider = new QSlider(Qt::Horizontal);
     pomodoro_time_slider->setRange(0, 120);
-    pomodoro_str = new QLabel(QString::number(pomodoro_time_slider->value()) + " min");
+    pomodoro_time_slider->setValue(Settings::pomodoro_time / 60);
+    pomodoro_str = new QLabel(QString::number(pomodoro_time_slider->value()) + tr(" min"));
 
-    short_lbl = new QLabel("Short break time:");
+    short_lbl = new QLabel(tr("Short break time:"));
     short_break_slider = new QSlider(Qt::Horizontal);
     short_break_slider->setRange(0, 120);
-    short_break_str = new QLabel(QString::number(short_break_slider->value()) + " min");
+    short_break_slider->setValue(Settings::short_break_time / 60);
+    short_break_str = new QLabel(QString::number(short_break_slider->value()) + tr(" min"));
 
-    long_lbl = new QLabel("Long break time:");
+    long_lbl = new QLabel(tr("Long break time:"));
     long_break_slider = new QSlider(Qt::Horizontal);
     long_break_slider->setRange(0, 120);
-    long_break_str = new QLabel(QString::number(long_break_slider->value()) + " min");
+    long_break_slider->setValue(Settings::long_break_time / 60);
+    long_break_str = new QLabel(QString::number(long_break_slider->value()) + tr(" min"));
 
-    sound = new QLabel("Sound:");
-    sound_play = new QPushButton("Play");
+    sound = new QLabel(tr("Sound:"));
+    sound_play = new QPushButton(tr("Play"));
     sound_name = new QLabel(Settings::current_sound.source().fileName());
-    sound_change = new QPushButton("Change sound");
+    sound_change = new QPushButton(tr("Change sound"));
     old_sound_path = Settings::current_sound.source().path();
 
-    auto_settings_lbl = new QLabel("Auto settings");
-    auto_settings = new QCheckBox("Auto set");
+    auto_settings_lbl = new QLabel(tr("Auto settings"));
+    auto_settings = new QCheckBox(tr("Auto set"));
 
-    accept_btn = new QPushButton("Accept");
-    cancel_btn = new QPushButton("Cancel");
+    accept_btn = new QPushButton(tr("Accept"));
+    cancel_btn = new QPushButton(tr("Cancel"));
 
+    if (Settings::is_round)
+    {
+        qDebug() << "Round is going";
+        pomodoro_time_slider->setEnabled(false);
+        short_break_slider->setEnabled(false);
+        long_break_slider->setEnabled(false);
+    }
+    else
+    {
+        qDebug() << "Round is off";
+        pomodoro_time_slider->setEnabled(true);
+        short_break_slider->setEnabled(true);
+        long_break_slider->setEnabled(true);
+    }
+
+
+    // LAYOUTS
     main_layout->addWidget(pomodoro_lbl, 0, 0);
     main_layout->addWidget(pomodoro_time_slider, 0, 1);
     main_layout->addWidget(pomodoro_str, 0, 2);
@@ -85,9 +105,9 @@ SettingsForm::SettingsForm(QDialog *parent)
 
 void SettingsForm::save_changings()
 {
-    Settings::pomodoro_time = pomodoro_time_slider->value();
-    Settings::short_break_time = short_break_slider->value();
-    Settings::long_break_time = long_break_slider->value();
+    Settings::pomodoro_time = pomodoro_time_slider->value() * 60;
+    Settings::short_break_time = short_break_slider->value() * 60;
+    Settings::long_break_time = long_break_slider->value() * 60;
     close();
 }
 
@@ -110,15 +130,15 @@ void SettingsForm::change_sound()
 
 void SettingsForm::pomodoro_slider_changed(int value)
 {
-    pomodoro_str->setText(QString::number(value) + " min");
+    pomodoro_str->setText(QString::number(value) + tr(" min"));
 }
 
 void SettingsForm::short_slider_changed(int value)
 {
-    short_break_str->setText(QString::number(value) + " min");
+    short_break_str->setText(QString::number(value) + tr(" min"));
 }
 
 void SettingsForm::long_slider_changed(int value)
 {
-    long_break_str->setText(QString::number(value) + " min");
+    long_break_str->setText(QString::number(value) + tr(" min"));
 }
