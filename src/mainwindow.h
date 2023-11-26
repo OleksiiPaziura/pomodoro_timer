@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <QtWidgets>
 #include <QTimer>
+#include <QSoundEffect>
 
 class MainWindow : public QMainWindow
 {
@@ -12,8 +13,11 @@ class MainWindow : public QMainWindow
 
 private:
     QVBoxLayout *main_layout;
-    QPushButton *btn;
-    QPushButton *auto_close_btn;
+
+    QLineEdit *time_edit;
+    QPushButton *start_btn;
+
+    QSoundEffect sound;
 
     QTimer *timer;
     int timeout_counter;
@@ -22,7 +26,7 @@ public:
     MainWindow(QWidget *parent = nullptr);
 
 public slots:
-    void auto_close();
+    void startTimer();
     void onTimeout();
 };
 #endif // MAINWINDOW_H
