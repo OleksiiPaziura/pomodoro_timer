@@ -3,6 +3,9 @@
 SettingsForm::SettingsForm(QDialog *parent)
     : QDialog{parent}
 {
+    // BASE SETTINGS
+    setFixedSize(400, 250);
+
     base_layout = new QVBoxLayout;
     main_layout	= new QGridLayout;
     buttons_layout = new QHBoxLayout;
@@ -18,17 +21,22 @@ SettingsForm::SettingsForm(QDialog *parent)
     pomodoro_lbl = new QLabel("Pomodoro time:");
     pomodoro_time_slider = new QSlider(Qt::Horizontal);
     pomodoro_time_slider->setRange(0, 120);
-    pomodoro_str = new QLabel(QString::number(pomodoro_time_slider->value()));
+    pomodoro_str = new QLabel(QString::number(pomodoro_time_slider->value()) + " min");
 
     short_lbl = new QLabel("Short break time:");
     short_break_slider = new QSlider(Qt::Horizontal);
     short_break_slider->setRange(0, 120);
-    short_break_str = new QLabel(QString::number(short_break_slider->value()));
+    short_break_str = new QLabel(QString::number(short_break_slider->value()) + " min");
 
     long_lbl = new QLabel("Long break time:");
     long_break_slider = new QSlider(Qt::Horizontal);
     long_break_slider->setRange(0, 120);
-    long_break_str = new QLabel(QString::number(long_break_slider->value()));
+    long_break_str = new QLabel(QString::number(long_break_slider->value()) + " min");
+
+    sound = new QLabel("Sound:");
+    sound_play = new QPushButton("Play");
+    sound_name = new QLabel(Settings::current_sound.source().fileName());
+    sound_change = new QPushButton("Change sound");
 
     auto_settings_lbl = new QLabel("Auto settings");
     auto_settings = new QCheckBox("Auto set");
@@ -48,8 +56,14 @@ SettingsForm::SettingsForm(QDialog *parent)
     main_layout->addWidget(long_break_slider, 2, 1);
     main_layout->addWidget(long_break_str, 2, 2);
 
-    main_layout->addWidget(auto_settings_lbl, 3, 0);
-    main_layout->addWidget(auto_settings, 3, 1);
+    main_layout->addWidget(sound, 3, 0);
+    main_layout->addWidget(sound_play, 3, 1);
+    main_layout->addWidget(sound_name, 3, 2);
+
+    main_layout->addWidget(sound_change, 4, 1);
+
+    main_layout->addWidget(auto_settings_lbl, 5, 0);
+    main_layout->addWidget(auto_settings, 5, 1);
 
     buttons_layout->addWidget(accept_btn);
     buttons_layout->addWidget(cancel_btn);
@@ -57,7 +71,7 @@ SettingsForm::SettingsForm(QDialog *parent)
 
 
     // CONNECTIONS
-    connect(cancel_btn, SIGNAL(clicked()), this, SLOT(discard_changings()));
+    connect(cancel_btn, SIGNAL(clicked()), this, SLOT(close()));
     connect(accept_btn, SIGNAL(clicked()), this, SLOT(save_changings()));
 
     connect(pomodoro_time_slider, SIGNAL(valueChanged(int)), this, SLOT(pomodoro_slider_changed(int)));
@@ -67,13 +81,9 @@ SettingsForm::SettingsForm(QDialog *parent)
 
 void SettingsForm::save_changings()
 {
-    Settings::pomodoro_time = 2;
-    close();
-}
-
-void SettingsForm::discard_changings()
-{
-    Settings::pomodoro_time = 5;
+    Settings::pomodoro_time = pomodoro_time_slider->value();
+    Settings::short_break_time = short_break_slider->value();
+    Settings::long_break_time = long_break_slider->value();
     close();
 }
 

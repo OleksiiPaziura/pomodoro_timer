@@ -25,6 +25,11 @@ private:
     QSlider *long_break_slider;
     QLabel *long_break_str;
 
+    QLabel *sound;
+    QPushButton *sound_play;
+    QLabel *sound_name;
+    QPushButton *sound_change;
+
     QLabel *auto_settings_lbl;
     QCheckBox *auto_settings;
 
@@ -36,7 +41,6 @@ public:
 
 public slots:
     void save_changings();
-    void discard_changings();
 
     void pomodoro_slider_changed(int value);
     void short_slider_changed(int value);

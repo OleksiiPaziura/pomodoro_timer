@@ -4,6 +4,8 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     // WINDOW SETTINGS
+    setFixedSize(400, 400);
+
     timer = new QTimer(this);
     menu = new QMenu("File");
     settings_menu = new QAction("Settings");
@@ -43,6 +45,10 @@ MainWindow::MainWindow(QWidget *parent)
 void MainWindow::startTimer()
 {
     timer->start(1000);
+
+    qDebug() << "Pomodoro: " + QString::number(Settings::pomodoro_time) + "\n";
+    qDebug() << "Short: " + QString::number(Settings::short_break_time) + "\n";
+    qDebug() << "Long: " + QString::number(Settings::long_break_time) + "\n";
 }
 
 void MainWindow::onTimeout()
