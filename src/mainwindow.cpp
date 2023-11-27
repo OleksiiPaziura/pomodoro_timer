@@ -12,7 +12,10 @@ MainWindow::MainWindow(QWidget *parent)
     setCentralWidget(central_widget);
     central_widget->setLayout(main_layout);
 
-    Settings::round_sound.setSource(QUrl::fromLocalFile("../sounds/sound.wav"));
+    setWindowIcon(QIcon("../icons/icon.ico"));
+    Settings::round_sound.setSource(QUrl::fromLocalFile("../sounds/sound1.wav"));
+    Settings::short_break_sound.setSource(QUrl::fromLocalFile("../sounds/sound1.wav"));
+    Settings::long_break_sound.setSource(QUrl::fromLocalFile("../sounds/sound1.wav"));
     setPalette(Settings::round_color);
     timeout_counter = 0;
     pause_counter = 0;
@@ -23,7 +26,7 @@ MainWindow::MainWindow(QWidget *parent)
     current_round = Settings::Round;
 
 
-    menu = new QMenu("File");
+    menu = new QMenu(tr("File"));
     settings_action = new QAction(tr("Settings"));
     credits_action = new QAction(tr("Credits"));
     menu->addAction(settings_action);
@@ -168,7 +171,7 @@ void MainWindow::stopTimer()
     Settings::is_round = false;
 }
 
-// Головний цикл програми при включеному таймеру
+// Цикл програми під час раунда
 void MainWindow::onRoundTimeout()
 {
     current_round = Settings::Round;
@@ -236,6 +239,7 @@ void MainWindow::onRoundTimeout()
     }
 }
 
+// Цикл програми під час короткої перерви
 void MainWindow::onShortBreakTimeout()
 {
     Settings::is_round = true;
@@ -259,6 +263,7 @@ void MainWindow::onShortBreakTimeout()
     }
 }
 
+// Цикл програми під час довгої перерви
 void MainWindow::onLongBreakTimeout()
 {
     Settings::is_round = true;
@@ -317,5 +322,5 @@ void MainWindow::openSettings()
 // Відкриття вікна інформації про додаток
 void MainWindow::openCredits()
 {
-    QMessageBox::information(this, tr("Credits"), tr("Version: 0.0.1\nCreated by: Oleksii Paziura"));
+    QMessageBox::information(this, tr("Credits"), tr("Version: 1.0.0\nCreated by: Oleksii Paziura"));
 }

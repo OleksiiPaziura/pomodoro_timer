@@ -19,6 +19,11 @@ HEADERS += \
     settings.h \
     settings_form.h
 
+TRANSLATIONS += \
+    QtLanguage_en.ts \
+    QtLanguage_ua.ts \
+    QtLanguage_ru.ts
+
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
