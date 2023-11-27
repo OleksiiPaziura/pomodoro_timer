@@ -26,16 +26,19 @@ private:
     QPushButton *start_btn;		// Кнопка для старту таймеру
     QPushButton *stop_btn;		// Кнопка для зупинки таймеру
 
-    QGroupBox *rounds;			// Контейнер, що містить раунди
+    QFrame *rounds;			// Контейнер, що містить раунди
     QRadioButton *first_round;  // Перший раунд
     QRadioButton *second_round; // Другий раунд
     QRadioButton *third_round;  // Третій раунд
     QRadioButton *fourth_round; // Четвертий раунд
 
     /// TIMERS
-    QTimer *timer;				// Головний таймер
-    int timeout_counter;		// Лічильник секунд
+    QTimer *round_timer;		// Головний таймер
+    QTimer *break_timer;		// Головний таймер
+    int timeout_counter;		// Лічильник секунд таймеру раундів
+    int break_counter;			// Лічильник секунд таймеру перерв
     int pause_counter;			// Лічильник для контролю кнопки start_btn
+    bool is_break;
 
 public:
     MainWindow(QWidget *parent = nullptr);
@@ -47,9 +50,9 @@ public slots:
     void startTimer();			// Старт/Пауза/Продовження таймеру
     void stopTimer();			// Зупинка таймеру
 
-    void onTimeout();			// Головний цикл програми при включеному таймері
+    void onRoundTimeout();		// Головний цикл програми при включеному таймері
+    void onBreakTimeout();		//
     void onDialChange(int);		// Інтерактивна обробка візуального відображення таймеру
-    void onRoundChange(bool); 	// Обробка зміни раунду
 
     void openSettings();		// Відкриття вікна налаштувань
     void openCredits();			// Відкриття вікна інформації про додаток

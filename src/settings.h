@@ -2,33 +2,42 @@
 #define SETTINGS_H
 
 #include <QSoundEffect>
+#include <QPalette>
 
 class Settings
 {
 public:
     static const int SEC_IN_MIN = 60;
+    enum Pomodoro
+    {
+        Round,
+        ShortBreak,
+        LongBreak
+    };
 
     // Налаштування раунів
     static int round_time;
     static QSoundEffect round_sound;
     static const int DEFAULT_ROUND_TIME_IN_MIN = 25;
     static const int DEFAULT_ROUND_TIME_IN_SEC = 25 * SEC_IN_MIN;
+    static QPalette round_color;
 
     // Налаштування коротких перерв
     static int short_break_time;
     static QSoundEffect short_break_sound;
     static const int DEFAULT_SHORT_BREAK_TIME_IN_MIN = 5;
     static const int DEFAULT_SHORT_BREAK_TIME_IN_SEC = 5 * SEC_IN_MIN;
+    static QPalette short_break_color;
 
     // Налаштування довгих перерв
     static int long_break_time;
     static QSoundEffect long_break_sound;
     static const int DEFAULT_LONG_BREAK_TIME_IN_MIN = 15;
     static const int DEFAULT_LONG_BREAK_TIME_IN_SEC = 15 * SEC_IN_MIN;
+    static QPalette long_break_color;
 
     // Додаткові дані
     static bool is_round;
-    static int current_round;
     static QString locale;
 };
 

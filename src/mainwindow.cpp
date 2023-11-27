@@ -5,6 +5,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     /// BASE INITS
     setFixedSize(300, 400);
+    setPalette(Settings::round_color);
 
     QWidget *central_widget = new QWidget;
     main_layout = new QVBoxLayout;
@@ -15,8 +16,12 @@ MainWindow::MainWindow(QWidget *parent)
     Settings::round_sound.setSource(QUrl::fromLocalFile("../sounds/sound.wav"));
     timeout_counter = 0;
     pause_counter = 0;
+    break_counter = 0;
+    is_break = false;
+    round_timer = new QTimer(this);
+    break_timer = new QTimer(this);
 
-    timer = new QTimer(this);
+
     menu = new QMenu("File");
     settings_action = new QAction(tr("Settings"));
     credits_action = new QAction(tr("Credits"));
@@ -43,12 +48,12 @@ MainWindow::MainWindow(QWidget *parent)
     stop_btn->setMinimumWidth(150);
     stop_btn->setMinimumHeight(25);
 
-    rounds = new QGroupBox;
+    rounds = new QFrame;
     rounds->setLayout(rounds_layout);
     rounds->setMaximumHeight(35);
     rounds->setMaximumWidth(100);
-    rounds->setAlignment(Qt::AlignCenter);
     first_round = new QRadioButton;
+    first_round->setChecked(true);
     second_round = new QRadioButton;
     third_round = new QRadioButton;
     fourth_round = new QRadioButton;
@@ -79,14 +84,11 @@ MainWindow::MainWindow(QWidget *parent)
     // Робота з таймером
     connect(start_btn, SIGNAL(clicked()), this, SLOT(startTimer()));
     connect(stop_btn, SIGNAL(clicked()), this, SLOT(stopTimer()));
-    connect(timer, SIGNAL(timeout()), this, SLOT(onTimeout()));
+    connect(round_timer, SIGNAL(timeout()), this, SLOT(onRoundTimeout()));
+    connect(break_timer, SIGNAL(timeout()), this, SLOT(onBreakTimeout()));
 
     // Обробки змін
     connect(dial, SIGNAL(valueChanged(int)), this, SLOT(onDialChange(int)));
-    connect(first_round, SIGNAL(toggled(bool)), this, SLOT(onRoundChange(bool)));
-    connect(second_round, SIGNAL(toggled(bool)), this, SLOT(onRoundChange(bool)));
-    connect(third_round, SIGNAL(toggled(bool)), this, SLOT(onRoundChange(bool)));
-    connect(fourth_round, SIGNAL(toggled(bool)), this, SLOT(onRoundChange(bool)));
 }
 
 // Функція для конвертування секунд у формат mm:ss
@@ -108,22 +110,36 @@ QString MainWindow::convertTime(int total_seconds)
 void MainWindow::startTimer()
 {
     Settings::is_round = true;
+
     if (start_btn->text() == tr("Start"))
     {
-        dial->setRange(0, Settings::round_time);
-        timer->start(1000);
+        if (is_break)
+        {
+            dial->setRange(0, Settings::short_break_time);
+            break_timer->start(1000);
+        }
+        else
+        {
+            dial->setRange(0, Settings::round_time);
+            round_timer->start(1000);
+        }
+
         start_btn->setText(tr("Pause"));
     }
     else
     {
         if (++pause_counter % 2 == 0)
         {
-            timer->start(1000);
+            if (is_break)
+                break_timer->start(1000);
+            else
+                round_timer->start(1000);
             start_btn->setText(tr("Pause"));
         }
         else
         {
-            timer->stop();
+            break_timer->stop();
+            round_timer->stop();
             start_btn->setText(tr("Continue"));
         }
     }
@@ -132,8 +148,10 @@ void MainWindow::startTimer()
 // Зупинка таймеру
 void MainWindow::stopTimer()
 {
-    timer->stop();
+    round_timer->stop();
+    break_timer->stop();
     timeout_counter	= 0;
+    break_counter = 0;
     time_left->setText(convertTime(Settings::round_time - timeout_counter));
     dial->setValue(0);
     start_btn->setText(tr("Start"));
@@ -141,38 +159,94 @@ void MainWindow::stopTimer()
 }
 
 // Головний цикл програми при включеному таймеру
-void MainWindow::onTimeout()
+void MainWindow::onRoundTimeout()
 {
+    setPalette(Settings::round_color);
+    dial->setRange(0, Settings::round_time);
+
     Settings::is_round = true;
     dial->setValue(++timeout_counter);
     time_left->setText(convertTime(Settings::round_time - timeout_counter));
 
     if (timeout_counter > Settings::round_time)
     {
+        setPalette(Settings::short_break_color);
+        dial->setRange(0, Settings::short_break_time);
+        is_break = true;
+
+        if (first_round->isChecked())
+        {
+            first_round->setChecked(false);
+            second_round->setChecked(true);
+
+            break_timer->start(1000);
+        }
+        else if (second_round->isChecked())
+        {
+            second_round->setChecked(false);
+            third_round->setChecked(true);
+
+            break_timer->start(1000);
+        }
+        else if (third_round->isChecked())
+        {
+            third_round->setChecked(false);
+            fourth_round->setChecked(true);
+
+            break_timer->start(1000);
+        }
+        else if (fourth_round->isChecked())
+        {
+            fourth_round->setChecked(false);
+            first_round->setChecked(true);
+        }
+
         timeout_counter	= 0;
         time_left->setText(convertTime(Settings::round_time - timeout_counter));
+        dial->setValue(0);
+        Settings::short_break_sound.play();
+        round_timer->stop();
+    }
+}
+
+void MainWindow::onBreakTimeout()
+{
+    setPalette(Settings::short_break_color);
+    dial->setRange(0, Settings::short_break_time);
+
+    Settings::is_round = true;
+    dial->setValue(++break_counter);
+    time_left->setText(convertTime(Settings::short_break_time - break_counter));
+
+    if (break_counter > Settings::short_break_time)
+    {
+        break_counter = 0;
         dial->setValue(0);
         start_btn->setText(tr("Start"));
         Settings::round_sound.play();
         Settings::is_round = false;
-        timer->stop();
+        break_timer->stop();
+
+        setPalette(Settings::round_color);
+        dial->setRange(0, Settings::round_time);
+        time_left->setText(convertTime(Settings::round_time - timeout_counter));
+        is_break = false;
     }
 }
 
 // Інтерактивна обробка візуального відображення таймеру
 void MainWindow::onDialChange(int value)
 {
-    timeout_counter = dial->value();
-    time_left->setText(convertTime(Settings::round_time - value));
-}
-
-void MainWindow::onRoundChange(bool)
-{
-    qDebug() << "1:\t" + QString::number(first_round->isChecked());
-    qDebug() << "2:\t" + QString::number(second_round->isChecked());
-    qDebug() << "3:\t" + QString::number(third_round->isChecked());
-    qDebug() << "4:\t" + QString::number(fourth_round->isChecked());
-    qDebug() << "\n\n";
+    if (is_break)
+    {
+        break_counter = dial->value();
+        time_left->setText(convertTime(Settings::short_break_time - value));
+    }
+    else
+    {
+        timeout_counter = dial->value();
+        time_left->setText(convertTime(Settings::round_time - value));
+    }
 }
 
 // Відкриття вікна налаштувань
