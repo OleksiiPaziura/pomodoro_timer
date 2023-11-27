@@ -73,6 +73,7 @@ SettingsForm::SettingsForm(QDialog *parent)
     }
 
     pull_up_settings = new QCheckBox(tr("Pull-up settings"));
+    pull_up_settings->setChecked(true);
 
 
     // FOR BUTTONS_LAYOUT

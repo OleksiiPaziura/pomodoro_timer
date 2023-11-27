@@ -11,6 +11,8 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 private:
+    Settings::Pomodoro current_round; // Раунд, що зараз триває
+
     /// LAYOUTS
     QVBoxLayout *main_layout;	// Головний макет
     QHBoxLayout *rounds_layout; // Макет для відображення раундів
@@ -34,11 +36,10 @@ private:
 
     /// TIMERS
     QTimer *round_timer;		// Головний таймер
-    QTimer *break_timer;		// Головний таймер
+    QTimer *short_break_timer;		// Головний таймер
+    QTimer *long_break_timer;		// Головний таймер
     int timeout_counter;		// Лічильник секунд таймеру раундів
-    int break_counter;			// Лічильник секунд таймеру перерв
     int pause_counter;			// Лічильник для контролю кнопки start_btn
-    bool is_break;
 
 public:
     MainWindow(QWidget *parent = nullptr);
@@ -51,7 +52,8 @@ public slots:
     void stopTimer();			// Зупинка таймеру
 
     void onRoundTimeout();		// Головний цикл програми при включеному таймері
-    void onBreakTimeout();		//
+    void onShortBreakTimeout();		//
+    void onLongBreakTimeout();		//
     void onDialChange(int);		// Інтерактивна обробка візуального відображення таймеру
 
     void openSettings();		// Відкриття вікна налаштувань

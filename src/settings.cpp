@@ -13,7 +13,7 @@ QPalette Settings::short_break_color = QPalette("#66DE6C");
 // Налаштування довгих перерв
 int Settings::long_break_time = Settings::DEFAULT_LONG_BREAK_TIME_IN_SEC;
 QSoundEffect Settings::long_break_sound;
-QPalette Settings::long_break_color = QPalette("#DBDE34");
+QPalette Settings::long_break_color = QPalette("#DCDE66");
 
 // Додаткові дані
 bool Settings::is_round = false;
