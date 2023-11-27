@@ -17,7 +17,6 @@ MainWindow::MainWindow(QWidget *parent)
 
 
     // SETTINGS
-    Settings::pomodoro_time = 5;
     Settings::current_sound.setSource(QUrl::fromLocalFile("../sounds/sound.wav"));
     timeout_counter = 0;
     pause_counter = 0;
@@ -26,15 +25,20 @@ MainWindow::MainWindow(QWidget *parent)
 
     // WIDGETS
     dial = new QDial;
-    dial->setRange(0, Settings::pomodoro_time);
+    dial->setMinimumHeight(250);
+    dial->setRange(0, Settings::round_time);
 
-    time_left = new QLabel;
+    time_left = new QLabel(convertTime(Settings::round_time));
     time_left->setAlignment(Qt::AlignCenter);
     time_left->setFont(QFont("Arial", 20));
     time_left->setMaximumHeight(25);
 
     start_btn = new QPushButton(tr("Start"));
+    start_btn->setMinimumWidth(150);
+    start_btn->setMinimumHeight(25);
     stop_btn = new QPushButton(tr("Stop"));
+    stop_btn->setMinimumWidth(150);
+    stop_btn->setMinimumHeight(25);
 
 
 
@@ -44,10 +48,22 @@ MainWindow::MainWindow(QWidget *parent)
     setCentralWidget(central_widget);
     central_widget->setLayout(main_layout);
 
+    rounds = new QGroupBox;
+    rounds->setMaximumHeight(35);
+    rounds->setMaximumWidth(100);
+    rounds->setAlignment(Qt::AlignCenter);
+    QHBoxLayout *rounds_layout = new QHBoxLayout;
+    rounds_layout->addWidget(new QRadioButton);
+    rounds_layout->addWidget(new QRadioButton);
+    rounds_layout->addWidget(new QRadioButton);
+    rounds_layout->addWidget(new QRadioButton);
+    rounds->setLayout(rounds_layout);
+
     main_layout->addWidget(time_left);
     main_layout->addWidget(dial);
-    main_layout->addWidget(start_btn);
-    main_layout->addWidget(stop_btn);
+    main_layout->addWidget(rounds, 0, Qt::AlignCenter);
+    main_layout->addWidget(start_btn, 0, Qt::AlignCenter);
+    main_layout->addWidget(stop_btn, 0, Qt::AlignCenter);
 
 
     // CONNECTIONS
@@ -80,7 +96,7 @@ void MainWindow::startTimer()
     Settings::is_round = true;
     if (start_btn->text() == tr("Start"))
     {
-        dial->setRange(0, Settings::pomodoro_time);
+        dial->setRange(0, Settings::round_time);
         timer->start(1000);
         start_btn->setText(tr("Pause"));
     }
@@ -103,7 +119,7 @@ void MainWindow::stopTimer()
 {
     timer->stop();
     timeout_counter	= 0;
-    time_left->setText(convertTime(Settings::pomodoro_time - timeout_counter));
+    time_left->setText(convertTime(Settings::round_time - timeout_counter));
     dial->setValue(0);
     start_btn->setText(tr("Start"));
     Settings::is_round = false;
@@ -113,12 +129,12 @@ void MainWindow::onTimeout()
 {
     Settings::is_round = true;
     dial->setValue(++timeout_counter);
-    time_left->setText(convertTime(Settings::pomodoro_time - timeout_counter));
+    time_left->setText(convertTime(Settings::round_time - timeout_counter));
 
-    if (timeout_counter > Settings::pomodoro_time)
+    if (timeout_counter > Settings::round_time)
     {
         timeout_counter	= 0;
-        time_left->setText(convertTime(Settings::pomodoro_time - timeout_counter));
+        time_left->setText(convertTime(Settings::round_time - timeout_counter));
         dial->setValue(0);
         start_btn->setText(tr("Start"));
         Settings::current_sound.play();
@@ -130,7 +146,7 @@ void MainWindow::onTimeout()
 void MainWindow::onDialChange(int value)
 {
     timeout_counter = dial->value();
-    time_left->setText(convertTime(Settings::pomodoro_time - value));
+    time_left->setText(convertTime(Settings::round_time - value));
 }
 
 void MainWindow::openSettings()

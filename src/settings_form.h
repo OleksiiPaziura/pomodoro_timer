@@ -1,8 +1,8 @@
 #ifndef SETTINGSFORM_H
 #define SETTINGSFORM_H
 
-#include <QtWidgets>
 #include "settings.h"
+#include <QtWidgets>
 
 class SettingsForm : public QDialog
 {

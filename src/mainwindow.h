@@ -1,14 +1,10 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMainWindow>
-#include <QDebug>
-#include <QtWidgets>
-#include <QTimer>
-#include <QSoundEffect>
-
 #include "settings.h"
 #include "settings_form.h"
+#include <QtWidgets>
+#include <QSoundEffect>
 
 class MainWindow : public QMainWindow
 {
@@ -24,6 +20,7 @@ private:
 
     QLabel *time_left;
     QDial *dial;
+    QGroupBox *rounds;
     QPushButton *start_btn;
     QPushButton *stop_btn;
 

@@ -21,7 +21,7 @@ SettingsForm::SettingsForm(QDialog *parent)
     pomodoro_lbl = new QLabel(tr("Pomodoro time:"));
     pomodoro_time_slider = new QSlider(Qt::Horizontal);
     pomodoro_time_slider->setRange(0, 120);
-    pomodoro_time_slider->setValue(Settings::pomodoro_time / 60);
+    pomodoro_time_slider->setValue(Settings::round_time / 60);
     pomodoro_str = new QLabel(QString::number(pomodoro_time_slider->value()) + tr(" min"));
 
     short_lbl = new QLabel(tr("Short break time:"));
@@ -50,14 +50,12 @@ SettingsForm::SettingsForm(QDialog *parent)
 
     if (Settings::is_round)
     {
-        qDebug() << "Round is going";
         pomodoro_time_slider->setEnabled(false);
         short_break_slider->setEnabled(false);
         long_break_slider->setEnabled(false);
     }
     else
     {
-        qDebug() << "Round is off";
         pomodoro_time_slider->setEnabled(true);
         short_break_slider->setEnabled(true);
         long_break_slider->setEnabled(true);
@@ -92,7 +90,7 @@ SettingsForm::SettingsForm(QDialog *parent)
 
 
     // CONNECTIONS
-    connect(cancel_btn, SIGNAL(clicked()), this, SLOT(close()));
+    connect(cancel_btn, SIGNAL(clicked()), this, SLOT(discard_changings()));
     connect(accept_btn, SIGNAL(clicked()), this, SLOT(save_changings()));
 
     connect(sound_play, SIGNAL(clicked()), this, SLOT(play_sound()));
@@ -105,7 +103,7 @@ SettingsForm::SettingsForm(QDialog *parent)
 
 void SettingsForm::save_changings()
 {
-    Settings::pomodoro_time = pomodoro_time_slider->value() * 60;
+    Settings::round_time = pomodoro_time_slider->value() * 60;
     Settings::short_break_time = short_break_slider->value() * 60;
     Settings::long_break_time = long_break_slider->value() * 60;
     close();
