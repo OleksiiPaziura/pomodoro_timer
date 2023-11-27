@@ -9,48 +9,71 @@ class SettingsForm : public QDialog
     Q_OBJECT
 
 private:
-    QVBoxLayout *base_layout;
-    QGridLayout *main_layout;
-    QHBoxLayout *buttons_layout;
+    /// CONSTANTS
+    // Кількість відтворюваних можливих хвилин для встеновлення
+    const int SLIDER_MINS = 2 * Settings::SEC_IN_MIN;
 
-    QLabel *pomodoro_lbl;
-    QSlider *pomodoro_time_slider;
-    QLabel *pomodoro_str;
+    /// LAYOUTS
+    QVBoxLayout *base_layout;			// Базовий макет
+    QGridLayout *main_layout;			// Макет для розміщення GUI
+    QHBoxLayout *buttons_layout;		// Макет для розміщення кнопок скасування та додавання
 
-    QLabel *short_lbl;
-    QSlider *short_break_slider;
-    QLabel *short_break_str;
+    /// WIDGETS
+    /// FOR MAIN_LAYOUT
+    // Раунд
+    QLabel *round_front_lbl;			// Передня позначка
+    QSlider *round_time_slider;			// Слайдер обрання часу раунду
+    QLabel *round_back_lbl;				// Задня позначка
 
-    QLabel *long_lbl;
-    QSlider *long_break_slider;
-    QLabel *long_break_str;
+    QLabel *round_sound_front_lbl;		// Передня позначка
+    QPushButton *round_sound_play_btn;	// Кнопка відтворення обраного аудіо-сигналу
+    QLabel *round_sound_back_lbl;		// Позначка назви файла обраного аудіо-сигналу
+    QPushButton *round_sound_change_btn;// Кнопка зміни аудіо-сигналу
+    QString old_round_sound_path;		// Старий путь до аудіо-сигналу
 
-    QLabel *sound;
-    QPushButton *sound_play;
-    QLabel *sound_name;
-    QPushButton *sound_change;
-    QString old_sound_path;
+    // Коротка перерва
+    QLabel *short_front_lbl;			// Передня позначка
+    QSlider *short_break_slider;		// Слайдер обрання часу короткої перерви
+    QLabel *short_back_lbl;				// Задня позначка
 
-    QLabel *auto_settings_lbl;
-    QCheckBox *auto_settings;
+    QLabel *short_sound_front_lbl;		// Передня позначка
+    QPushButton *short_sound_play_btn;	// Кнопка відтворення обраного аудіо-сигналу
+    QLabel *short_sound_back_lbl;		// Позначка назви файла обраного аудіо-сигналу
+    QPushButton *short_sound_change_btn;// Кнопка зміни аудіо-сигналу
+    QString old_short_sound_path;		// Старий путь до аудіо-сигналу
 
-    QPushButton *accept_btn;
-    QPushButton *cancel_btn;
+    // Довга перерва
+    QLabel *long_front_lbl;				// Передня позначка
+    QSlider *long_break_slider;			// Слайдер обрання часу довгої перерви
+    QLabel *long_back_lbl;				// Задня позначка
+
+    QLabel *long_sound_front_lbl;		// Передня позначка
+    QPushButton *long_sound_play_btn;	// Кнопка відтворення обраного аудіо-сигналу
+    QLabel *long_sound_back_lbl;		// Позначка назви файла обраного аудіо-сигналу
+    QPushButton *long_sound_change_btn;	// Кнопка зміни аудіо-сигналу
+    QString old_long_sound_path;		// Старий путь до аудіо-сигналу
+
+
+    QCheckBox *pull_up_settings;	// Підтягування всіх слайдерів через один з них
+
+
+    /// FOR BUTTONS_LAYOUT
+    QPushButton *accept_btn;		// Кнопка збереження
+    QPushButton *cancel_btn;		// Кнопка скасування
 
 public:
     explicit SettingsForm(QDialog *parent = nullptr);
 
 public slots:
-    void save_changings();
+    void save_changings();		// Збереження змін
+    void discard_changings();	// Скасування змін
 
-    void play_sound();
-    void change_sound();
+    void play_sound();			// Відтворення обраного аудіо-сигналу
+    void change_sound();		// Змінення аудіо-сигналу
 
-    void pomodoro_slider_changed(int value);
-    void short_slider_changed(int value);
-    void long_slider_changed(int value);
-
-signals:
+    void round_slider_changed(int value);	// Обробка зміни раунду
+    void short_slider_changed(int value);	// Обробка зміни короткої перерви
+    void long_slider_changed(int value);	// Обробка зміни довгої перерви
 };
 
 #endif // SETTINGSFORM_H

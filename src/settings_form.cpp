@@ -3,8 +3,8 @@
 SettingsForm::SettingsForm(QDialog *parent)
     : QDialog{parent}
 {
-    // BASE SETTINGS
-    setFixedSize(400, 250);
+    /// WINDOW SETTINGS
+    setFixedSize(400, 400);
 
     base_layout = new QVBoxLayout;
     main_layout	= new QGridLayout;
@@ -17,126 +17,173 @@ SettingsForm::SettingsForm(QDialog *parent)
 
 
 
-    // WIDGETS
-    pomodoro_lbl = new QLabel(tr("Pomodoro time:"));
-    pomodoro_time_slider = new QSlider(Qt::Horizontal);
-    pomodoro_time_slider->setRange(0, 120);
-    pomodoro_time_slider->setValue(Settings::round_time / 60);
-    pomodoro_str = new QLabel(QString::number(pomodoro_time_slider->value()) + tr(" min"));
+    /// WIDGETS
+    // FOR MAIN_LAYOUT
+    // Раунд
+    round_front_lbl = new QLabel(tr("Round time:"));
+    round_time_slider = new QSlider(Qt::Horizontal);
+    round_time_slider->setRange(0, SLIDER_MINS);
+    round_time_slider->setValue(Settings::round_time / Settings::SEC_IN_MIN);
+    round_back_lbl = new QLabel(QString::number(round_time_slider->value()) + tr(" min"));
 
-    short_lbl = new QLabel(tr("Short break time:"));
+    round_sound_front_lbl = new QLabel(tr("Sound:"));
+    round_sound_play_btn = new QPushButton(tr("Play"));
+    round_sound_back_lbl = new QLabel(Settings::round_sound.source().fileName());
+    round_sound_change_btn = new QPushButton(tr("Change sound"));
+    old_round_sound_path = Settings::round_sound.source().path();
+
+    // Коротка перерва
+    short_front_lbl = new QLabel(tr("Short break time:"));
     short_break_slider = new QSlider(Qt::Horizontal);
-    short_break_slider->setRange(0, 120);
-    short_break_slider->setValue(Settings::short_break_time / 60);
-    short_break_str = new QLabel(QString::number(short_break_slider->value()) + tr(" min"));
+    short_break_slider->setRange(0, SLIDER_MINS);
+    short_break_slider->setValue(Settings::short_break_time / Settings::SEC_IN_MIN);
+    short_back_lbl = new QLabel(QString::number(short_break_slider->value()) + tr(" min"));
 
-    long_lbl = new QLabel(tr("Long break time:"));
+    short_sound_front_lbl = new QLabel(tr("Sound:"));
+    short_sound_play_btn = new QPushButton(tr("Play"));
+    short_sound_back_lbl = new QLabel(Settings::short_break_sound.source().fileName());
+    short_sound_change_btn = new QPushButton(tr("Change sound"));
+    old_short_sound_path = Settings::short_break_sound.source().path();
+
+    // Довга перерва
+    long_front_lbl = new QLabel(tr("Long break time:"));
     long_break_slider = new QSlider(Qt::Horizontal);
-    long_break_slider->setRange(0, 120);
-    long_break_slider->setValue(Settings::long_break_time / 60);
-    long_break_str = new QLabel(QString::number(long_break_slider->value()) + tr(" min"));
+    long_break_slider->setRange(0, SLIDER_MINS);
+    long_break_slider->setValue(Settings::long_break_time / Settings::SEC_IN_MIN);
+    long_back_lbl = new QLabel(QString::number(long_break_slider->value()) + tr(" min"));
 
-    sound = new QLabel(tr("Sound:"));
-    sound_play = new QPushButton(tr("Play"));
-    sound_name = new QLabel(Settings::current_sound.source().fileName());
-    sound_change = new QPushButton(tr("Change sound"));
-    old_sound_path = Settings::current_sound.source().path();
+    long_sound_front_lbl = new QLabel(tr("Sound:"));
+    long_sound_play_btn = new QPushButton(tr("Play"));
+    long_sound_back_lbl = new QLabel(Settings::long_break_sound.source().fileName());
+    long_sound_change_btn = new QPushButton(tr("Change sound"));
+    old_long_sound_path = Settings::long_break_sound.source().path();
 
-    auto_settings_lbl = new QLabel(tr("Auto settings"));
-    auto_settings = new QCheckBox(tr("Auto set"));
-
-    accept_btn = new QPushButton(tr("Accept"));
-    cancel_btn = new QPushButton(tr("Cancel"));
-
+    // Інші налаштування
     if (Settings::is_round)
     {
-        pomodoro_time_slider->setEnabled(false);
+        round_time_slider->setEnabled(false);
         short_break_slider->setEnabled(false);
         long_break_slider->setEnabled(false);
     }
     else
     {
-        pomodoro_time_slider->setEnabled(true);
+        round_time_slider->setEnabled(true);
         short_break_slider->setEnabled(true);
         long_break_slider->setEnabled(true);
     }
 
+    pull_up_settings = new QCheckBox(tr("Pull-up settings"));
+
+
+    // FOR BUTTONS_LAYOUT
+    accept_btn = new QPushButton(tr("Accept"));
+    cancel_btn = new QPushButton(tr("Cancel"));
+
+
 
     // LAYOUTS
-    main_layout->addWidget(pomodoro_lbl, 0, 0);
-    main_layout->addWidget(pomodoro_time_slider, 0, 1);
-    main_layout->addWidget(pomodoro_str, 0, 2);
+    // Main layout
+    main_layout->addWidget(round_front_lbl, 0, 0);
+    main_layout->addWidget(round_time_slider, 0, 1);
+    main_layout->addWidget(round_back_lbl, 0, 2);
 
-    main_layout->addWidget(short_lbl, 1, 0);
-    main_layout->addWidget(short_break_slider, 1, 1);
-    main_layout->addWidget(short_break_str, 1, 2);
+    main_layout->addWidget(round_sound_front_lbl, 1, 0);
+    main_layout->addWidget(round_sound_play_btn, 1, 1);
+    main_layout->addWidget(round_sound_back_lbl, 1, 2);
+    main_layout->addWidget(round_sound_change_btn, 2, 1);
 
-    main_layout->addWidget(long_lbl, 2, 0);
-    main_layout->addWidget(long_break_slider, 2, 1);
-    main_layout->addWidget(long_break_str, 2, 2);
 
-    main_layout->addWidget(sound, 3, 0);
-    main_layout->addWidget(sound_play, 3, 1);
-    main_layout->addWidget(sound_name, 3, 2);
+    main_layout->addWidget(short_front_lbl, 3, 0);
+    main_layout->addWidget(short_break_slider, 3, 1);
+    main_layout->addWidget(short_back_lbl, 3, 2);
 
-    main_layout->addWidget(sound_change, 4, 1);
+    main_layout->addWidget(short_sound_front_lbl, 4, 0);
+    main_layout->addWidget(short_sound_play_btn, 4, 1);
+    main_layout->addWidget(short_sound_back_lbl, 4, 2);
+    main_layout->addWidget(short_sound_change_btn, 5, 1);
 
-    main_layout->addWidget(auto_settings_lbl, 5, 0);
-    main_layout->addWidget(auto_settings, 5, 1);
 
+    main_layout->addWidget(long_front_lbl, 6, 0);
+    main_layout->addWidget(long_break_slider, 6, 1);
+    main_layout->addWidget(long_back_lbl, 6, 2);
+
+    main_layout->addWidget(long_sound_front_lbl, 7, 0);
+    main_layout->addWidget(long_sound_play_btn, 7, 1);
+    main_layout->addWidget(long_sound_back_lbl, 7, 2);
+    main_layout->addWidget(long_sound_change_btn, 8, 1);
+
+
+    main_layout->addWidget(pull_up_settings, 9, 1);
+
+    // Buttons layout
     buttons_layout->addWidget(accept_btn);
     buttons_layout->addWidget(cancel_btn);
 
 
 
     // CONNECTIONS
-    connect(cancel_btn, SIGNAL(clicked()), this, SLOT(discard_changings()));
+    // Обробка збереження і скасування
     connect(accept_btn, SIGNAL(clicked()), this, SLOT(save_changings()));
+    connect(cancel_btn, SIGNAL(clicked()), this, SLOT(discard_changings()));
 
-    connect(sound_play, SIGNAL(clicked()), this, SLOT(play_sound()));
-    connect(sound_change, SIGNAL(clicked()), this, SLOT(change_sound()));
+    // Обробка звукової частини
+    connect(round_sound_play_btn, SIGNAL(clicked()), this, SLOT(play_sound()));
+    connect(round_sound_change_btn, SIGNAL(clicked()), this, SLOT(change_sound()));
 
-    connect(pomodoro_time_slider, SIGNAL(valueChanged(int)), this, SLOT(pomodoro_slider_changed(int)));
+    // Обробка зміни слайдерів часу
+    connect(round_time_slider, SIGNAL(valueChanged(int)), this, SLOT(round_slider_changed(int)));
     connect(short_break_slider, SIGNAL(valueChanged(int)), this, SLOT(short_slider_changed(int)));
     connect(long_break_slider, SIGNAL(valueChanged(int)), this, SLOT(long_slider_changed(int)));
 }
 
+// Збереження налаштувань при натисканні кнопки "Зберігти"
 void SettingsForm::save_changings()
 {
-    Settings::round_time = pomodoro_time_slider->value() * 60;
-    Settings::short_break_time = short_break_slider->value() * 60;
-    Settings::long_break_time = long_break_slider->value() * 60;
+    Settings::round_time = round_time_slider->value() * Settings::SEC_IN_MIN;
+    Settings::short_break_time = short_break_slider->value() * Settings::SEC_IN_MIN;
+    Settings::long_break_time = long_break_slider->value() * Settings::SEC_IN_MIN;
     close();
 }
 
-void SettingsForm::play_sound()
+// Скасування налаштувань при натисканні кнопки "Скасувати"
+void SettingsForm::discard_changings()
 {
-    Settings::current_sound.play();
+
 }
 
+// Відтворення обраного аудіо-сигналу при натисканні кнопки "Перегляд"
+void SettingsForm::play_sound()
+{
+    Settings::round_sound.play();
+}
+
+// Зміна аудіо-сигналу при натисканні кнопки "Зміна"
 void SettingsForm::change_sound()
 {
-    Settings::current_sound.stop();
+    Settings::round_sound.stop();
 
     QFileDialog *select_file = new QFileDialog;
 
-    Settings::current_sound.setSource(QUrl::fromLocalFile(
+    Settings::round_sound.setSource(QUrl::fromLocalFile(
         select_file->getOpenFileName(this, "Sound file", "../sounds", "Sound files (*.wav)")));
 
-    sound_name->setText(Settings::current_sound.source().fileName());
+    round_sound_back_lbl->setText(Settings::round_sound.source().fileName());
 }
 
-void SettingsForm::pomodoro_slider_changed(int value)
+// Обробка зміни часу раунда
+void SettingsForm::round_slider_changed(int value)
 {
-    pomodoro_str->setText(QString::number(value) + tr(" min"));
+    round_back_lbl->setText(QString::number(value) + tr(" min"));
 }
 
+// Обробка зміни часу короткої перерви
 void SettingsForm::short_slider_changed(int value)
 {
-    short_break_str->setText(QString::number(value) + tr(" min"));
+    short_back_lbl->setText(QString::number(value) + tr(" min"));
 }
 
+// Обробка зміни часу довгої перерви
 void SettingsForm::long_slider_changed(int value)
 {
-    long_break_str->setText(QString::number(value) + tr(" min"));
+    long_back_lbl->setText(QString::number(value) + tr(" min"));
 }

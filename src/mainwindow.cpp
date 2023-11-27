@@ -4,7 +4,7 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     // WINDOW SETTINGS
-    setFixedSize(400, 400);
+    setFixedSize(300, 400);
 
     timer = new QTimer(this);
     menu = new QMenu("File");
@@ -17,7 +17,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 
     // SETTINGS
-    Settings::current_sound.setSource(QUrl::fromLocalFile("../sounds/sound.wav"));
+    Settings::round_sound.setSource(QUrl::fromLocalFile("../sounds/sound.wav"));
     timeout_counter = 0;
     pause_counter = 0;
 
@@ -137,7 +137,7 @@ void MainWindow::onTimeout()
         time_left->setText(convertTime(Settings::round_time - timeout_counter));
         dial->setValue(0);
         start_btn->setText(tr("Start"));
-        Settings::current_sound.play();
+        Settings::round_sound.play();
         Settings::is_round = false;
         timer->stop();
     }
@@ -151,7 +151,10 @@ void MainWindow::onDialChange(int value)
 
 void MainWindow::openSettings()
 {
-    Settings::current_sound.stop();
+    Settings::round_sound.stop();
+    Settings::short_break_sound.stop();
+    Settings::long_break_sound.stop();
+
     SettingsForm *sf = new SettingsForm;
     sf->setModal(true);
     sf->show();
