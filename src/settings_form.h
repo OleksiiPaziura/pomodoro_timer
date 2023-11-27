@@ -11,7 +11,7 @@ class SettingsForm : public QDialog
 private:
     /// CONSTANTS
     // Кількість відтворюваних можливих хвилин для встеновлення
-    const int SLIDER_MINS = 2 * Settings::SEC_IN_MIN;
+    const int SLIDER_MINS = 5 * Settings::SEC_IN_MIN;
 
     /// LAYOUTS
     QVBoxLayout *base_layout;			// Базовий макет
@@ -80,6 +80,8 @@ public slots:
     void round_slider_changed(int value);	// Обробка зміни раунду
     void short_slider_changed(int value);	// Обробка зміни короткої перерви
     void long_slider_changed(int value);	// Обробка зміни довгої перерви
+
+    void pull_up_settings_changed(int value);	// Обробка зміни підтягування налаштувань
 };
 
 #endif // SETTINGSFORM_H

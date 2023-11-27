@@ -141,6 +141,9 @@ SettingsForm::SettingsForm(QDialog *parent)
     connect(round_time_slider, SIGNAL(valueChanged(int)), this, SLOT(round_slider_changed(int)));
     connect(short_break_slider, SIGNAL(valueChanged(int)), this, SLOT(short_slider_changed(int)));
     connect(long_break_slider, SIGNAL(valueChanged(int)), this, SLOT(long_slider_changed(int)));
+
+    // Обробка підтягування слайдерів часу
+    connect(pull_up_settings, SIGNAL(stateChanged(int)), this, SLOT(pull_up_settings_changed(int)));
 }
 
 // Збереження налаштувань при натисканні кнопки "Зберігти"
@@ -225,16 +228,60 @@ void SettingsForm::change_long_break_sound()
 void SettingsForm::round_slider_changed(int value)
 {
     round_back_lbl->setText(QString::number(value) + tr(" min"));
+
+    if (pull_up_settings->isChecked())
+        pull_up_settings_changed(true);
 }
 
 // Обробка зміни часу короткої перерви
 void SettingsForm::short_slider_changed(int value)
 {
+    int short_break_time = short_break_slider->value();
+    int round_time = short_break_time * 5;
+    int long_break_time = short_break_time * 3;
+
     short_back_lbl->setText(QString::number(value) + tr(" min"));
+
+    if (pull_up_settings->isChecked())
+    {
+        if (value <= SLIDER_MINS / 5)
+            short_back_lbl->setText(QString::number(value) + tr(" min"));
+        else
+            short_break_slider->setValue(SLIDER_MINS / 5);
+
+        if (round_time <= SLIDER_MINS)
+        {
+            round_time_slider->setValue(round_time);
+            long_break_slider->setValue(long_break_time);
+        }
+    }
 }
 
 // Обробка зміни часу довгої перерви
 void SettingsForm::long_slider_changed(int value)
 {
+    int long_break_time = long_break_slider->value();
+    int short_break_time = long_break_time / 3;
+    int round_time = short_break_time * 5;
+
     long_back_lbl->setText(QString::number(value) + tr(" min"));
+
+    if (pull_up_settings->isChecked())
+    {
+        short_break_slider->setValue(short_break_time);
+        round_time_slider->setValue(round_time);
+    }
+}
+
+void SettingsForm::pull_up_settings_changed(int value)
+{
+    // У разі, якщо чекбокс дорівнює true
+    if (value != 0)
+    {
+        int round_time = round_time_slider->value();
+        int short_break_time = round_time / 5;
+        int long_break_time = short_break_time * 3;
+        short_break_slider->setValue(short_break_time);
+        long_break_slider->setValue(long_break_time);
+    }
 }
