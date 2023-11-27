@@ -127,8 +127,15 @@ SettingsForm::SettingsForm(QDialog *parent)
     connect(cancel_btn, SIGNAL(clicked()), this, SLOT(discard_changings()));
 
     // Обробка звукової частини
-    connect(round_sound_play_btn, SIGNAL(clicked()), this, SLOT(play_sound()));
-    connect(round_sound_change_btn, SIGNAL(clicked()), this, SLOT(change_sound()));
+    // Раунд
+    connect(round_sound_play_btn, SIGNAL(clicked()), this, SLOT(play_round_sound()));
+    connect(round_sound_change_btn, SIGNAL(clicked()), this, SLOT(change_round_sound()));
+    // Коротка перерва
+    connect(short_sound_play_btn, SIGNAL(clicked()), this, SLOT(play_short_break_sound()));
+    connect(short_sound_change_btn, SIGNAL(clicked()), this, SLOT(change_short_break_sound()));
+    // Довга перерва
+    connect(long_sound_play_btn, SIGNAL(clicked()), this, SLOT(play_long_break_sound()));
+    connect(long_sound_change_btn, SIGNAL(clicked()), this, SLOT(change_long_break_sound()));
 
     // Обробка зміни слайдерів часу
     connect(round_time_slider, SIGNAL(valueChanged(int)), this, SLOT(round_slider_changed(int)));
@@ -148,26 +155,70 @@ void SettingsForm::save_changings()
 // Скасування налаштувань при натисканні кнопки "Скасувати"
 void SettingsForm::discard_changings()
 {
-
+    Settings::round_sound.setSource(QUrl::fromLocalFile(old_round_sound_path));
+    Settings::short_break_sound.setSource(QUrl::fromLocalFile(old_short_sound_path));
+    Settings::long_break_sound.setSource(QUrl::fromLocalFile(old_long_sound_path));
+    close();
 }
 
-// Відтворення обраного аудіо-сигналу при натисканні кнопки "Перегляд"
-void SettingsForm::play_sound()
+// Відтворення аудіо-сигналу раунда
+void SettingsForm::play_round_sound()
 {
     Settings::round_sound.play();
 }
 
-// Зміна аудіо-сигналу при натисканні кнопки "Зміна"
-void SettingsForm::change_sound()
+// Зміна аудіо-сигналу раунда
+void SettingsForm::change_round_sound()
 {
     Settings::round_sound.stop();
 
     QFileDialog *select_file = new QFileDialog;
+    QUrl new_path = QUrl::fromLocalFile(select_file->getOpenFileName(this, "Sound file", "../sounds", "Sound files (*.wav)"));
 
-    Settings::round_sound.setSource(QUrl::fromLocalFile(
-        select_file->getOpenFileName(this, "Sound file", "../sounds", "Sound files (*.wav)")));
+    if (!new_path.isEmpty())
+        Settings::round_sound.setSource(new_path);
 
     round_sound_back_lbl->setText(Settings::round_sound.source().fileName());
+}
+
+// Відтворення аудіо-сигналу короткої перерви
+void SettingsForm::play_short_break_sound()
+{
+    Settings::short_break_sound.play();
+}
+
+// Зміна аудіо-сигналу короткої перерви
+void SettingsForm::change_short_break_sound()
+{
+    Settings::short_break_sound.stop();
+
+    QFileDialog *select_file = new QFileDialog;
+    QUrl new_path = QUrl::fromLocalFile(select_file->getOpenFileName(this, "Sound file", "../sounds", "Sound files (*.wav)"));
+
+    if (!new_path.isEmpty())
+        Settings::short_break_sound.setSource(new_path);
+
+    short_sound_back_lbl->setText(Settings::short_break_sound.source().fileName());
+}
+
+// Відтворення аудіо-сигналу довгої перерви
+void SettingsForm::play_long_break_sound()
+{
+    Settings::long_break_sound.play();
+}
+
+// Зміна аудіо-сигналу довгої перерви
+void SettingsForm::change_long_break_sound()
+{
+    Settings::long_break_sound.stop();
+
+    QFileDialog *select_file = new QFileDialog;
+    QUrl new_path = QUrl::fromLocalFile(select_file->getOpenFileName(this, "Sound file", "../sounds", "Sound files (*.wav)"));
+
+    if (!new_path.isEmpty())
+        Settings::long_break_sound.setSource(new_path);
+
+    long_sound_back_lbl->setText(Settings::long_break_sound.source().fileName());
 }
 
 // Обробка зміни часу раунда

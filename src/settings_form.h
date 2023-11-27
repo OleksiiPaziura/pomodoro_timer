@@ -65,11 +65,17 @@ public:
     explicit SettingsForm(QDialog *parent = nullptr);
 
 public slots:
-    void save_changings();		// Збереження змін
-    void discard_changings();	// Скасування змін
+    void save_changings();					// Збереження змін
+    void discard_changings();				// Скасування змін
 
-    void play_sound();			// Відтворення обраного аудіо-сигналу
-    void change_sound();		// Змінення аудіо-сигналу
+    void play_round_sound();				// Відтворення аудіо-сигналу для раунда
+    void change_round_sound();				// Змінення аудіо-сигналу раунда
+
+    void play_short_break_sound();			// Відтворення аудіо-сигналу для короткої перерви
+    void change_short_break_sound();		// Змінення аудіо-сигналу короткої перерви
+
+    void play_long_break_sound();			// Відтворення аудіо-сигналу для довгої перерви
+    void change_long_break_sound();			// Змінення аудіо-сигналу довгої перерви
 
     void round_slider_changed(int value);	// Обробка зміни раунду
     void short_slider_changed(int value);	// Обробка зміни короткої перерви
