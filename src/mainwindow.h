@@ -11,35 +11,47 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 private:
-    QVBoxLayout *main_layout;
-    QWidget *central_widget;
+    /// LAYOUTS
+    QVBoxLayout *main_layout;	// Головний макет
+    QHBoxLayout *rounds_layout; // Макет для відображення раундів
 
-    QMenu *menu;
-    QAction *settings_action;
-    QAction *credits_action;
+    /// MENU
+    QMenu *menu;				// Меню зверху програми
+    QAction *settings_action;	// Елемент меню для відкриття налаштувань
+    QAction *credits_action;	// Елемент меню для виведення інформації про додаток
 
-    QLabel *time_left;
-    QDial *dial;
-    QGroupBox *rounds;
-    QPushButton *start_btn;
-    QPushButton *stop_btn;
+    /// WIDGETS
+    QLabel *time_left;			// Помітка скільки часу лишилось до кінця раунда чи перерви
+    QDial *dial;				// Візуальне відображення статус-бару
+    QPushButton *start_btn;		// Кнопка для старту таймеру
+    QPushButton *stop_btn;		// Кнопка для зупинки таймеру
 
-    QTimer *timer;
-    int timeout_counter;
-    int pause_counter;
+    QGroupBox *rounds;			// Контейнер, що містить раунди
+    QRadioButton *first_round;  // Перший раунд
+    QRadioButton *second_round; // Другий раунд
+    QRadioButton *third_round;  // Третій раунд
+    QRadioButton *fourth_round; // Четвертий раунд
+
+    /// TIMERS
+    QTimer *timer;				// Головний таймер
+    int timeout_counter;		// Лічильник секунд
+    int pause_counter;			// Лічильник для контролю кнопки start_btn
 
 public:
     MainWindow(QWidget *parent = nullptr);
+
+    // Функція для конвертування секунд у формат mm:ss
     QString convertTime(int total_seconds);
 
 public slots:
-    void startTimer();
-    void stopTimer();
+    void startTimer();			// Старт/Пауза/Продовження таймеру
+    void stopTimer();			// Зупинка таймеру
 
-    void onTimeout();
-    void onDialChange(int value);
+    void onTimeout();			// Головний цикл програми при включеному таймері
+    void onDialChange(int);		// Інтерактивна обробка візуального відображення таймеру
+    void onRoundChange(bool); 	// Обробка зміни раунду
 
-    void openSettings();
-    void openCredits();
+    void openSettings();		// Відкриття вікна налаштувань
+    void openCredits();			// Відкриття вікна інформації про додаток
 };
 #endif // MAINWINDOW_H

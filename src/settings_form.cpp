@@ -3,7 +3,7 @@
 SettingsForm::SettingsForm(QDialog *parent)
     : QDialog{parent}
 {
-    /// WINDOW SETTINGS
+    /// BASE INITS
     setFixedSize(400, 400);
 
     base_layout = new QVBoxLayout;
@@ -81,8 +81,8 @@ SettingsForm::SettingsForm(QDialog *parent)
 
 
 
-    // LAYOUTS
-    // Main layout
+    /// LAYOUTS
+    // MAIN LAYOUT
     main_layout->addWidget(round_front_lbl, 0, 0);
     main_layout->addWidget(round_time_slider, 0, 1);
     main_layout->addWidget(round_back_lbl, 0, 2);
@@ -115,13 +115,13 @@ SettingsForm::SettingsForm(QDialog *parent)
 
     main_layout->addWidget(pull_up_settings, 9, 1);
 
-    // Buttons layout
+    // BUTTONS_LAYOUT
     buttons_layout->addWidget(accept_btn);
     buttons_layout->addWidget(cancel_btn);
 
 
 
-    // CONNECTIONS
+    /// CONNECTIONS
     // Обробка збереження і скасування
     connect(accept_btn, SIGNAL(clicked()), this, SLOT(save_changings()));
     connect(cancel_btn, SIGNAL(clicked()), this, SLOT(discard_changings()));
@@ -273,6 +273,7 @@ void SettingsForm::long_slider_changed(int value)
     }
 }
 
+// Обробка змін для підтягування налаштувань
 void SettingsForm::pull_up_settings_changed(int value)
 {
     // У разі, якщо чекбокс дорівнює true

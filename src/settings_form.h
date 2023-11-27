@@ -81,7 +81,7 @@ public slots:
     void short_slider_changed(int value);	// Обробка зміни короткої перерви
     void long_slider_changed(int value);	// Обробка зміни довгої перерви
 
-    void pull_up_settings_changed(int value);	// Обробка зміни підтягування налаштувань
+    void pull_up_settings_changed(int value);	// Обробка змін для підтягування налаштувань
 };
 
 #endif // SETTINGSFORM_H
