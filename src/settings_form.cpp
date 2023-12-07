@@ -147,12 +147,37 @@ SettingsForm::SettingsForm(QDialog *parent)
     connect(pull_up_settings, SIGNAL(stateChanged(int)), this, SLOT(pull_up_settings_changed(int)));
 }
 
+void SettingsForm::saveSettings()
+{
+    QSettings settings("PMDR0", "base");
+
+    // Timings
+    settings.beginGroup("Timings");
+    settings.setValue("roundTime", Settings::round_time);
+    settings.setValue("shortBreakTime", Settings::short_break_time);
+    settings.setValue("longBreakTime", Settings::long_break_time);
+    settings.endGroup();
+
+    // Sounds
+    settings.beginGroup("Sounds");
+    settings.setValue("roundSoundPath", Settings::round_sound.source().path());
+    settings.setValue("shortBreakSoundPath", Settings::short_break_sound.source().path());
+    settings.setValue("longBreakSoundPath", Settings::long_break_sound.source().path());
+    settings.endGroup();
+
+    // Locale
+    settings.beginGroup("Locale");
+    settings.setValue("locale", Settings::locale);
+    settings.endGroup();
+}
+
 // Збереження налаштувань при натисканні кнопки "Зберігти"
 void SettingsForm::save_changings()
 {
     Settings::round_time = round_time_slider->value() * Settings::SEC_IN_MIN;
     Settings::short_break_time = short_break_slider->value() * Settings::SEC_IN_MIN;
     Settings::long_break_time = long_break_slider->value() * Settings::SEC_IN_MIN;
+    saveSettings();
     close();
 }
 

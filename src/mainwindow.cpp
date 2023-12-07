@@ -5,6 +5,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     /// BASE INITS
     setFixedSize(300, 400);
+    loadSettings();
 
     QWidget *central_widget = new QWidget;
     main_layout = new QVBoxLayout;
@@ -13,9 +14,6 @@ MainWindow::MainWindow(QWidget *parent)
     central_widget->setLayout(main_layout);
 
     setWindowIcon(QIcon("../icons/icon.ico"));
-    Settings::round_sound.setSource(QUrl::fromLocalFile("../sounds/sound1.wav"));
-    Settings::short_break_sound.setSource(QUrl::fromLocalFile("../sounds/sound1.wav"));
-    Settings::long_break_sound.setSource(QUrl::fromLocalFile("../sounds/sound1.wav"));
     setPalette(Settings::round_color);
     timeout_counter = 0;
     pause_counter = 0;
@@ -109,6 +107,49 @@ QString MainWindow::convertTime(int total_seconds)
         seconds.push_front("0");
 
     return minutes + ":" + seconds;
+}
+
+void MainWindow::loadSettings()
+{
+    QSettings settings("PMDR0", "base");
+
+    if (settings.contains("Locale/locale") &&
+        settings.contains("Sounds/longBreakSoundPath") &&
+        settings.contains("Sounds/roundSoundPath") &&
+        settings.contains("Sounds/shortBreakSoundPath") &&
+        settings.contains("Timings/roundTime") &&
+        settings.contains("Timings/shortBreakTime") &&
+        settings.contains("Timings/longBreakTime"))
+    {
+        // Timings
+        settings.beginGroup("Timings");
+        Settings::round_time = settings.value("roundTime").toInt();
+        Settings::short_break_time = settings.value("shortBreakTime").toInt();
+        Settings::long_break_time = settings.value("longBreakTime").toInt();
+        settings.endGroup();
+
+        // Sounds
+        settings.beginGroup("Sounds");
+        Settings::round_sound.source().path() = settings.value("roundSoundPath").toString();
+        Settings::short_break_sound.source().path() = settings.value("shortBreakSoundPath").toString();
+        Settings::long_break_sound.source().path() = settings.value("longBreakSoundPath").toString();
+
+        Settings::round_sound.setSource(QUrl::fromLocalFile(settings.value("roundSoundPath").toString()));
+        Settings::short_break_sound.setSource(QUrl::fromLocalFile(settings.value("shortBreakSoundPath").toString()));
+        Settings::long_break_sound.setSource(QUrl::fromLocalFile(settings.value("longBreakSoundPath").toString()));
+        settings.endGroup();
+
+        // Locale
+        settings.beginGroup("Locale");
+        Settings::locale = settings.value("locale").toString();
+        settings.endGroup();
+    }
+    else
+    {
+        Settings::round_sound.setSource(QUrl::fromLocalFile("../sounds/sound1.wav"));
+        Settings::short_break_sound.setSource(QUrl::fromLocalFile("../sounds/sound1.wav"));
+        Settings::long_break_sound.setSource(QUrl::fromLocalFile("../sounds/sound1.wav"));
+    }
 }
 
 // Старт/Пауза/Продовження таймеру
