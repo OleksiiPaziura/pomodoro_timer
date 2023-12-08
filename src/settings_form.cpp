@@ -125,7 +125,7 @@ SettingsForm::SettingsForm(QDialog *parent)
     /// CONNECTIONS
     // Обробка збереження і скасування
     connect(accept_btn, SIGNAL(clicked()), this, SLOT(save_changings()));
-    connect(cancel_btn, SIGNAL(clicked()), this, SLOT(discard_changings()));
+    connect(cancel_btn, SIGNAL(clicked()), this, SLOT(close()));
 
     // Обробка звукової частини
     // Раунд
@@ -178,15 +178,6 @@ void SettingsForm::save_changings()
     Settings::short_break_time = short_break_slider->value() * Settings::SEC_IN_MIN;
     Settings::long_break_time = long_break_slider->value() * Settings::SEC_IN_MIN;
     saveSettings();
-    close();
-}
-
-// Скасування налаштувань при натисканні кнопки "Скасувати"
-void SettingsForm::discard_changings()
-{
-    Settings::round_sound.setSource(QUrl::fromLocalFile(old_round_sound_path));
-    Settings::short_break_sound.setSource(QUrl::fromLocalFile(old_short_sound_path));
-    Settings::long_break_sound.setSource(QUrl::fromLocalFile(old_long_sound_path));
     close();
 }
 
@@ -311,4 +302,11 @@ void SettingsForm::pull_up_settings_changed(int value)
         short_break_slider->setValue(short_break_time);
         long_break_slider->setValue(long_break_time);
     }
+}
+
+void SettingsForm::closeEvent(QCloseEvent *event)
+{
+    Settings::round_sound.setSource(QUrl::fromLocalFile(old_round_sound_path));
+    Settings::short_break_sound.setSource(QUrl::fromLocalFile(old_short_sound_path));
+    Settings::long_break_sound.setSource(QUrl::fromLocalFile(old_long_sound_path));
 }

@@ -17,4 +17,5 @@ QPalette Settings::long_break_color = QPalette("#DCDE66");
 
 // Додаткові дані
 bool Settings::is_round = false;
+Settings::TrayEnabled Settings::is_tray_enabled = Settings::Postponed;
 QString Settings::locale = "en";

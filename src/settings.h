@@ -14,6 +14,12 @@ public:
         ShortBreak,
         LongBreak
     };
+    static enum TrayEnabled
+    {
+        Enabled,
+        Disabled,
+        Postponed
+    } is_tray_enabled;
 
     // Налаштування раунів
     static int round_time;

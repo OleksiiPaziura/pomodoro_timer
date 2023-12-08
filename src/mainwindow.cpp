@@ -5,8 +5,8 @@ MainWindow::MainWindow(QWidget *parent)
 {
     /// BASE INITS
     setFixedSize(300, 400);
+    trayIcon = new QSystemTrayIcon(QIcon("../icons/icon2.ico"));;
     loadSettings();
-    loadSystemTray();
 
     QWidget *central_widget = new QWidget;
     main_layout = new QVBoxLayout;
@@ -121,7 +121,8 @@ void MainWindow::loadSettings()
         settings.contains("Sounds/shortBreakSoundPath") &&
         settings.contains("Timings/roundTime") &&
         settings.contains("Timings/shortBreakTime") &&
-        settings.contains("Timings/longBreakTime"))
+        settings.contains("Timings/longBreakTime") &&
+        settings.contains("Tray/isTrayEnabled"))
     {
         // Timings
         settings.beginGroup("Timings");
@@ -145,6 +146,11 @@ void MainWindow::loadSettings()
         settings.beginGroup("Locale");
         Settings::locale = settings.value("locale").toString();
         settings.endGroup();
+
+        // Tray
+        settings.beginGroup("Tray");
+        Settings::is_tray_enabled = settings.value("isTrayEnabled").value<Settings::TrayEnabled>();
+        settings.endGroup();
     }
     else
     {
@@ -164,10 +170,15 @@ void MainWindow::loadSystemTray()
     tray_menu->addAction(settings);
     tray_menu->addAction(exit);
 
-    QSystemTrayIcon *trayIcon = new QSystemTrayIcon(QIcon("../icons/icon2.ico"));;
     trayIcon->setContextMenu(tray_menu);
-    trayIcon->show();
 
+    trayIcon->show();
+    hide();
+
+//    connect(open, &QAction::triggered, this, [this, &trayIcon](){
+//                setVisible(true);
+//                trayIcon->hide();
+//            });
     connect(open, SIGNAL(triggered()), this, SLOT(openMainWindow()));
     connect(settings, SIGNAL(triggered()), this, SLOT(openSettings()));
     connect(exit, SIGNAL(triggered()), this, SLOT(close()));
@@ -389,5 +400,41 @@ void MainWindow::openCredits()
 
 void MainWindow::openMainWindow()
 {
-    qDebug() << "OPENING";
+//    show();
+//    trayIcon->hide();
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    if (Settings::is_tray_enabled == Settings::Postponed)
+    {
+        QMessageBox msg;
+        msg.setWindowTitle(tr("Rolling up into a tray"));
+        msg.setInformativeText(tr("Do you want to roll this window up into a tray?"));
+        msg.setIcon(QMessageBox::Question);
+        QPushButton *yes = msg.addButton(tr("Yes"), QMessageBox::YesRole);
+        QPushButton *no = msg.addButton(tr("No"), QMessageBox::NoRole);
+        QPushButton *postpone = msg.addButton(tr("No but ask me later"), QMessageBox::RejectRole);
+        msg.exec();
+
+        if (msg.clickedButton() == yes)
+            Settings::is_tray_enabled = Settings::Enabled;
+        else if (msg.clickedButton() == no)
+            Settings::is_tray_enabled = Settings::Disabled;
+        else if (msg.clickedButton() == postpone)
+            Settings::is_tray_enabled = Settings::Postponed;
+
+        QSettings settings("PMDR0", "base");
+        settings.beginGroup("Tray");
+        settings.setValue("isTrayEnabled", Settings::is_tray_enabled);
+        settings.endGroup();
+    }
+    else if (Settings::is_tray_enabled == Settings::Enabled)
+    {
+//        if (!trayIcon->isVisible())
+//        {
+//            loadSystemTray();
+//            event->ignore();
+//        }
+    }
 }

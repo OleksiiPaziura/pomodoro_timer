@@ -67,7 +67,6 @@ public:
 
 public slots:
     void save_changings();					// Збереження змін
-    void discard_changings();				// Скасування змін
 
     void play_round_sound();				// Відтворення аудіо-сигналу для раунда
     void change_round_sound();				// Змінення аудіо-сигналу раунда
@@ -83,6 +82,9 @@ public slots:
     void long_slider_changed(int);			// Обробка зміни довгої перерви
 
     void pull_up_settings_changed(int);		// Обробка змін для підтягування налаштувань
+
+protected:
+    void closeEvent(QCloseEvent *event) override;
 };
 
 #endif // SETTINGSFORM_H
