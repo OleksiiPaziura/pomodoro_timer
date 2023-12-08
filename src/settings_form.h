@@ -56,6 +56,9 @@ private:
 
     QCheckBox *pull_up_settings;			// Підтягування всіх слайдерів через один з них
 
+    QLabel *tray_roll_front_lbl;
+    QComboBox *tray_roll;					// Сгортання в трей
+
 
     /// FOR BUTTONS_LAYOUT
     QPushButton *accept_btn;				// Кнопка збереження

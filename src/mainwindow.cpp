@@ -5,7 +5,6 @@ MainWindow::MainWindow(QWidget *parent)
 {
     /// BASE INITS
     setFixedSize(300, 400);
-    trayIcon = new QSystemTrayIcon(QIcon("../icons/icon2.ico"));;
     loadSettings();
 
     QWidget *central_widget = new QWidget;
@@ -158,30 +157,6 @@ void MainWindow::loadSettings()
         Settings::short_break_sound.setSource(QUrl::fromLocalFile("../sounds/sound1.wav"));
         Settings::long_break_sound.setSource(QUrl::fromLocalFile("../sounds/sound1.wav"));
     }
-}
-
-void MainWindow::loadSystemTray()
-{
-    QMenu *tray_menu = new QMenu("Pomodoro");
-    QAction *open = new QAction("Open");
-    QAction *settings = new QAction("Settings");
-    QAction *exit = new QAction("Exit");
-    tray_menu->addAction(open);
-    tray_menu->addAction(settings);
-    tray_menu->addAction(exit);
-
-    trayIcon->setContextMenu(tray_menu);
-
-    trayIcon->show();
-    hide();
-
-//    connect(open, &QAction::triggered, this, [this, &trayIcon](){
-//                setVisible(true);
-//                trayIcon->hide();
-//            });
-    connect(open, SIGNAL(triggered()), this, SLOT(openMainWindow()));
-    connect(settings, SIGNAL(triggered()), this, SLOT(openSettings()));
-    connect(exit, SIGNAL(triggered()), this, SLOT(close()));
 }
 
 // Старт/Пауза/Продовження таймеру
@@ -398,10 +373,9 @@ void MainWindow::openCredits()
     QMessageBox::information(this, tr("Credits"), tr("Version: 1.0.0\nCreated by: Oleksii Paziura"));
 }
 
-void MainWindow::openMainWindow()
+void MainWindow::exitApplication()
 {
-//    show();
-//    trayIcon->hide();
+    qApp->quit();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -428,13 +402,10 @@ void MainWindow::closeEvent(QCloseEvent *event)
         settings.beginGroup("Tray");
         settings.setValue("isTrayEnabled", Settings::is_tray_enabled);
         settings.endGroup();
+        exitApplication();
     }
     else if (Settings::is_tray_enabled == Settings::Enabled)
     {
-//        if (!trayIcon->isVisible())
-//        {
-//            loadSystemTray();
-//            event->ignore();
-//        }
+
     }
 }

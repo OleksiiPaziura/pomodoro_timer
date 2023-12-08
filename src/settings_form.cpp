@@ -75,6 +75,18 @@ SettingsForm::SettingsForm(QDialog *parent)
     pull_up_settings = new QCheckBox(tr("Pull-up settings"));
     pull_up_settings->setChecked(true);
 
+    tray_roll_front_lbl = new QLabel(tr("Rolling up into tray:"));
+    tray_roll = new QComboBox;
+    tray_roll->addItem(tr("Tray"));
+    tray_roll->addItem(tr("Don't tray"));
+    tray_roll->addItem(tr("Postpone"));
+    if (Settings::is_tray_enabled == Settings::Enabled)
+        tray_roll->setCurrentText(tr("Tray"));
+    else if (Settings::is_tray_enabled == Settings::Disabled)
+        tray_roll->setCurrentText(tr("Don't tray"));
+    else if (Settings::is_tray_enabled == Settings::Postponed)
+        tray_roll->setCurrentText(tr("Postpone"));
+
 
     // FOR BUTTONS_LAYOUT
     accept_btn = new QPushButton(tr("Accept"));
@@ -115,6 +127,9 @@ SettingsForm::SettingsForm(QDialog *parent)
 
 
     main_layout->addWidget(pull_up_settings, 9, 1);
+
+    main_layout->addWidget(tray_roll_front_lbl, 10, 0);
+    main_layout->addWidget(tray_roll, 10, 1);
 
     // BUTTONS_LAYOUT
     buttons_layout->addWidget(accept_btn);
@@ -168,6 +183,16 @@ void SettingsForm::saveSettings()
     // Locale
     settings.beginGroup("Locale");
     settings.setValue("locale", Settings::locale);
+    settings.endGroup();
+
+    // Tray
+    settings.beginGroup("Tray");
+    if (tray_roll->currentText() == tr("Tray"))
+        settings.setValue("isTrayEnabled", Settings::Enabled);
+    else if (tray_roll->currentText() == tr("Don't tray"))
+        settings.setValue("isTrayEnabled", Settings::Disabled);
+    else if (tray_roll->currentText() == tr("Postpone"))
+        settings.setValue("isTrayEnabled", Settings::Postponed);
     settings.endGroup();
 }
 

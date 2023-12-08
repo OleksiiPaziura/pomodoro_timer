@@ -41,15 +41,12 @@ private:
     int timeout_counter;		// Лічильник секунд таймеру раундів
     int pause_counter;			// Лічильник для контролю кнопки start_btn
 
-    QSystemTrayIcon *trayIcon;
-
 public:
     MainWindow(QWidget *parent = nullptr);
 
     // Функція для конвертування секунд у формат mm:ss
     QString convertTime(int total_seconds);
     void loadSettings();
-    void loadSystemTray();
 
 public slots:
     void startTimer();			// Старт/Пауза/Продовження таймеру
@@ -63,7 +60,7 @@ public slots:
     void openSettings();		// Відкриття вікна налаштувань
     void openCredits();			// Відкриття вікна інформації про додаток
 
-    void openMainWindow();
+    void exitApplication();
 
 protected:
     void closeEvent(QCloseEvent *event) override;
