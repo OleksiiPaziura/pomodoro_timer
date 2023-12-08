@@ -58,20 +58,6 @@ SettingsForm::SettingsForm(QDialog *parent)
     long_sound_change_btn = new QPushButton(tr("Change sound"));
     old_long_sound_path = Settings::long_break_sound.source().path();
 
-    // Інші налаштування
-    if (Settings::is_round)
-    {
-        round_time_slider->setEnabled(false);
-        short_break_slider->setEnabled(false);
-        long_break_slider->setEnabled(false);
-    }
-    else
-    {
-        round_time_slider->setEnabled(true);
-        short_break_slider->setEnabled(true);
-        long_break_slider->setEnabled(true);
-    }
-
     pull_up_settings = new QCheckBox(tr("Pull-up settings"));
     pull_up_settings->setChecked(true);
 
@@ -349,7 +335,8 @@ void SettingsForm::factory_reset()
         settings.remove("Timtings");
         settings.remove("Tray");
 
-        close();
+        qApp->quit();
+        QProcess::startDetached(qApp->applicationFilePath());
     }
 }
 

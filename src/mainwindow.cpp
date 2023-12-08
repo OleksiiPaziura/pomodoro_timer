@@ -368,8 +368,19 @@ void MainWindow::openSettings()
     if (sf->exec() == QDialog::Accepted)
     {
         loadSettings();
-        qDebug() << "updating";
-        /// TODO
+        --timeout_counter;
+        if (current_round == Settings::Pomodoro::Round)
+        {
+            onRoundTimeout();
+        }
+        else if (current_round == Settings::Pomodoro::ShortBreak)
+        {
+            onShortBreakTimeout();
+        }
+        else if (current_round == Settings::Pomodoro::LongBreak)
+        {
+            onLongBreakTimeout();
+        }
     }
 }
 
