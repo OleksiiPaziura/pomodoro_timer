@@ -87,6 +87,8 @@ SettingsForm::SettingsForm(QDialog *parent)
     else if (Settings::is_tray_enabled == Settings::Postponed)
         tray_roll->setCurrentText(tr("Postpone"));
 
+    factory_reset_btn = new QPushButton(tr("Factory reset"));
+
 
     // FOR BUTTONS_LAYOUT
     accept_btn = new QPushButton(tr("Accept"));
@@ -131,6 +133,8 @@ SettingsForm::SettingsForm(QDialog *parent)
     main_layout->addWidget(tray_roll_front_lbl, 10, 0);
     main_layout->addWidget(tray_roll, 10, 1);
 
+    main_layout->addWidget(factory_reset_btn, 11, 1);
+
     // BUTTONS_LAYOUT
     buttons_layout->addWidget(accept_btn);
     buttons_layout->addWidget(cancel_btn);
@@ -138,9 +142,10 @@ SettingsForm::SettingsForm(QDialog *parent)
 
 
     /// CONNECTIONS
-    // Обробка збереження і скасування
+    // Обробка збереження, скасування і скидання налаштувань
     connect(accept_btn, SIGNAL(clicked()), this, SLOT(save_changings()));
     connect(cancel_btn, SIGNAL(clicked()), this, SLOT(close()));
+    connect(factory_reset_btn, SIGNAL(clicked()), this, SLOT(factory_reset()));
 
     // Обробка звукової частини
     // Раунд
@@ -203,6 +208,7 @@ void SettingsForm::save_changings()
     Settings::short_break_time = short_break_slider->value() * Settings::SEC_IN_MIN;
     Settings::long_break_time = long_break_slider->value() * Settings::SEC_IN_MIN;
     saveSettings();
+    accept();
     close();
 }
 
@@ -326,6 +332,24 @@ void SettingsForm::pull_up_settings_changed(int value)
         int long_break_time = short_break_time * 3;
         short_break_slider->setValue(short_break_time);
         long_break_slider->setValue(long_break_time);
+    }
+}
+
+void SettingsForm::factory_reset()
+{
+    int res = QMessageBox::warning(this, tr("Warning!"), tr("Are you sure?"), QMessageBox::Yes | QMessageBox::No,
+                                                                              QMessageBox::No);
+
+    if (res == QMessageBox::Yes)
+    {
+        QSettings settings("PMDR0", "base");
+
+        settings.remove("Locale");
+        settings.remove("Sounds");
+        settings.remove("Timtings");
+        settings.remove("Tray");
+
+        close();
     }
 }
 

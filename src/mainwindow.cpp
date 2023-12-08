@@ -364,7 +364,13 @@ void MainWindow::openSettings()
 
     SettingsForm *sf = new SettingsForm;
     sf->setModal(true);
-    sf->show();
+
+    if (sf->exec() == QDialog::Accepted)
+    {
+        loadSettings();
+        qDebug() << "updating";
+        /// TODO
+    }
 }
 
 // Відкриття вікна інформації про додаток

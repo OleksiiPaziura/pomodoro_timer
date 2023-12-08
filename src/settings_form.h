@@ -59,6 +59,8 @@ private:
     QLabel *tray_roll_front_lbl;
     QComboBox *tray_roll;					// Сгортання в трей
 
+    QPushButton *factory_reset_btn;
+
 
     /// FOR BUTTONS_LAYOUT
     QPushButton *accept_btn;				// Кнопка збереження
@@ -85,6 +87,8 @@ public slots:
     void long_slider_changed(int);			// Обробка зміни довгої перерви
 
     void pull_up_settings_changed(int);		// Обробка змін для підтягування налаштувань
+
+    void factory_reset();
 
 protected:
     void closeEvent(QCloseEvent *event) override;
