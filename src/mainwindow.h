@@ -47,6 +47,7 @@ public:
     // Функція для конвертування секунд у формат mm:ss
     QString convertTime(int total_seconds);
     void loadSettings();
+    void loadSystemTray();
 
 public slots:
     void startTimer();			// Старт/Пауза/Продовження таймеру
@@ -59,5 +60,7 @@ public slots:
 
     void openSettings();		// Відкриття вікна налаштувань
     void openCredits();			// Відкриття вікна інформації про додаток
+
+    void openMainWindow();
 };
 #endif // MAINWINDOW_H

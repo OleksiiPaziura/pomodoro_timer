@@ -6,6 +6,7 @@ MainWindow::MainWindow(QWidget *parent)
     /// BASE INITS
     setFixedSize(300, 400);
     loadSettings();
+    loadSystemTray();
 
     QWidget *central_widget = new QWidget;
     main_layout = new QVBoxLayout;
@@ -13,7 +14,8 @@ MainWindow::MainWindow(QWidget *parent)
     setCentralWidget(central_widget);
     central_widget->setLayout(main_layout);
 
-    setWindowIcon(QIcon("../icons/icon.ico"));
+    setWindowIcon(QIcon("../icons/icon2.ico"));
+
     setPalette(Settings::round_color);
     timeout_counter = 0;
     pause_counter = 0;
@@ -150,6 +152,25 @@ void MainWindow::loadSettings()
         Settings::short_break_sound.setSource(QUrl::fromLocalFile("../sounds/sound1.wav"));
         Settings::long_break_sound.setSource(QUrl::fromLocalFile("../sounds/sound1.wav"));
     }
+}
+
+void MainWindow::loadSystemTray()
+{
+    QMenu *tray_menu = new QMenu("Pomodoro");
+    QAction *open = new QAction("Open");
+    QAction *settings = new QAction("Settings");
+    QAction *exit = new QAction("Exit");
+    tray_menu->addAction(open);
+    tray_menu->addAction(settings);
+    tray_menu->addAction(exit);
+
+    QSystemTrayIcon *trayIcon = new QSystemTrayIcon(QIcon("../icons/icon2.ico"));;
+    trayIcon->setContextMenu(tray_menu);
+    trayIcon->show();
+
+    connect(open, SIGNAL(triggered()), this, SLOT(openMainWindow()));
+    connect(settings, SIGNAL(triggered()), this, SLOT(openSettings()));
+    connect(exit, SIGNAL(triggered()), this, SLOT(close()));
 }
 
 // Старт/Пауза/Продовження таймеру
@@ -364,4 +385,9 @@ void MainWindow::openSettings()
 void MainWindow::openCredits()
 {
     QMessageBox::information(this, tr("Credits"), tr("Version: 1.0.0\nCreated by: Oleksii Paziura"));
+}
+
+void MainWindow::openMainWindow()
+{
+    qDebug() << "OPENING";
 }
