@@ -387,12 +387,21 @@ void MainWindow::openSettings()
 // Відкриття вікна інформації про додаток
 void MainWindow::openCredits()
 {
-    QMessageBox::information(this, tr("Credits"), tr("Version: 1.0.0\nCreated by: Oleksii Paziura"));
+    QMessageBox::information(this, tr("Credits"), tr("Version: 2.0.0\nCreated by: Oleksii Paziura"));
 }
 
 void MainWindow::exitApplication()
 {
     qApp->quit();
+}
+
+void MainWindow::onTrayIconActivated(QSystemTrayIcon::ActivationReason reason)
+{
+    if (reason == QSystemTrayIcon::Trigger)
+    {
+        show();
+        delete tray;
+    }
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -419,10 +428,18 @@ void MainWindow::closeEvent(QCloseEvent *event)
         settings.beginGroup("Tray");
         settings.setValue("isTrayEnabled", Settings::is_tray_enabled);
         settings.endGroup();
-        exitApplication();
     }
-    else if (Settings::is_tray_enabled == Settings::Enabled)
+    if (Settings::is_tray_enabled == Settings::Enabled)
     {
-
+        hide();
+        tray = new QSystemTrayIcon(QIcon("../icons/icon2.ico"));
+        tray_exit = new QAction(tr("Exit"));
+        tray_menu = new QMenu;
+        tray_menu->addAction(tray_exit);
+        tray->setContextMenu(tray_menu);
+        connect(tray, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(onTrayIconActivated(QSystemTrayIcon::ActivationReason)));
+        connect(tray_exit, SIGNAL(triggered()), this, SLOT(exitApplication()));
+        tray->show();
+        event->ignore();
     }
 }
