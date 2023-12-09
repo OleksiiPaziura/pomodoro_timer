@@ -370,24 +370,18 @@ void MainWindow::openSettings()
         loadSettings();
         --timeout_counter;
         if (current_round == Settings::Pomodoro::Round)
-        {
             onRoundTimeout();
-        }
         else if (current_round == Settings::Pomodoro::ShortBreak)
-        {
             onShortBreakTimeout();
-        }
         else if (current_round == Settings::Pomodoro::LongBreak)
-        {
             onLongBreakTimeout();
-        }
     }
 }
 
 // Відкриття вікна інформації про додаток
 void MainWindow::openCredits()
 {
-    QMessageBox::information(this, tr("Credits"), tr("Version: 2.0.0\nCreated by: Oleksii Paziura"));
+    QMessageBox::information(this, tr("Credits"), tr("Version: 2.0.1\nCreated by: Oleksii Paziura"));
 }
 
 void MainWindow::exitApplication()

@@ -68,7 +68,7 @@ private:
 
 public:
     explicit SettingsForm(QDialog *parent = nullptr);
-    void saveSettings();
+    void save_settings(bool is_reset = 0);
 
 public slots:
     void save_changings();					// Збереження змін

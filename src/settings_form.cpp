@@ -153,37 +153,65 @@ SettingsForm::SettingsForm(QDialog *parent)
     connect(pull_up_settings, SIGNAL(stateChanged(int)), this, SLOT(pull_up_settings_changed(int)));
 }
 
-void SettingsForm::saveSettings()
+void SettingsForm::save_settings(bool is_reset)
 {
     QSettings settings("PMDR0", "base");
 
     // Timings
     settings.beginGroup("Timings");
-    settings.setValue("roundTime", Settings::round_time);
-    settings.setValue("shortBreakTime", Settings::short_break_time);
-    settings.setValue("longBreakTime", Settings::long_break_time);
+    if (is_reset)
+    {
+        settings.setValue("roundTime", Settings::DEFAULT_ROUND_TIME_IN_SEC);
+        settings.setValue("shortBreakTime", Settings::DEFAULT_SHORT_BREAK_TIME_IN_SEC);
+        settings.setValue("longBreakTime", Settings::DEFAULT_LONG_BREAK_TIME_IN_SEC);
+    }
+    else
+    {
+        settings.setValue("roundTime", Settings::round_time);
+        settings.setValue("shortBreakTime", Settings::short_break_time);
+        settings.setValue("longBreakTime", Settings::long_break_time);
+    }
     settings.endGroup();
 
     // Sounds
     settings.beginGroup("Sounds");
-    settings.setValue("roundSoundPath", Settings::round_sound.source().path());
-    settings.setValue("shortBreakSoundPath", Settings::short_break_sound.source().path());
-    settings.setValue("longBreakSoundPath", Settings::long_break_sound.source().path());
+    if (is_reset)
+    {
+        settings.setValue("roundSoundPath", "../sounds/sound1.wav");
+        settings.setValue("shortBreakSoundPath", "../sounds/sound1.wav");
+        settings.setValue("longBreakSoundPath", "../sounds/sound1.wav");
+    }
+    else
+    {
+        settings.setValue("roundSoundPath", Settings::round_sound.source().path());
+        settings.setValue("shortBreakSoundPath", Settings::short_break_sound.source().path());
+        settings.setValue("longBreakSoundPath", Settings::long_break_sound.source().path());
+    }
     settings.endGroup();
 
     // Locale
     settings.beginGroup("Locale");
-    settings.setValue("locale", Settings::locale);
+    if (is_reset)
+        settings.setValue("locale", "en");
+    else
+        settings.setValue("locale", Settings::locale);
     settings.endGroup();
 
     // Tray
     settings.beginGroup("Tray");
-    if (tray_roll->currentText() == tr("Tray"))
-        settings.setValue("isTrayEnabled", Settings::Enabled);
-    else if (tray_roll->currentText() == tr("Don't tray"))
-        settings.setValue("isTrayEnabled", Settings::Disabled);
-    else if (tray_roll->currentText() == tr("Postpone"))
+    if (is_reset)
+    {
         settings.setValue("isTrayEnabled", Settings::Postponed);
+    }
+    else
+    {
+        if (tray_roll->currentText() == tr("Tray"))
+            settings.setValue("isTrayEnabled", Settings::Enabled);
+        else if (tray_roll->currentText() == tr("Don't tray"))
+            settings.setValue("isTrayEnabled", Settings::Disabled);
+        else if (tray_roll->currentText() == tr("Postpone"))
+            settings.setValue("isTrayEnabled", Settings::Postponed);
+    }
     settings.endGroup();
 }
 
@@ -193,7 +221,7 @@ void SettingsForm::save_changings()
     Settings::round_time = round_time_slider->value() * Settings::SEC_IN_MIN;
     Settings::short_break_time = short_break_slider->value() * Settings::SEC_IN_MIN;
     Settings::long_break_time = long_break_slider->value() * Settings::SEC_IN_MIN;
-    saveSettings();
+    save_settings();
     accept();
     close();
 }
@@ -323,8 +351,7 @@ void SettingsForm::pull_up_settings_changed(int value)
 
 void SettingsForm::factory_reset()
 {
-    int res = QMessageBox::warning(this, tr("Warning!"), tr("Are you sure?"), QMessageBox::Yes | QMessageBox::No,
-                                                                              QMessageBox::No);
+    int res = QMessageBox::warning(this, tr("Warning!"), tr("Are you sure?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
 
     if (res == QMessageBox::Yes)
     {
@@ -332,11 +359,12 @@ void SettingsForm::factory_reset()
 
         settings.remove("Locale");
         settings.remove("Sounds");
-        settings.remove("Timtings");
+        settings.remove("Timings");
         settings.remove("Tray");
 
         qApp->quit();
         QProcess::startDetached(qApp->applicationFilePath());
+        save_settings(true);
     }
 }
 
