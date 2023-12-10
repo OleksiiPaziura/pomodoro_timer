@@ -56,8 +56,12 @@ private:
 
     QCheckBox *pull_up_settings;			// Підтягування всіх слайдерів через один з них
 
-    QLabel *tray_roll_front_lbl;
+    QLabel *tray_roll_front_lbl;			// Передня позначка
     QComboBox *tray_roll;					// Сгортання в трей
+    QCheckBox *enable_tray_notifications;	// Вмикання повідомлень у треї
+
+    QLabel *languages_front_lbl;			// Передня позначка
+    QComboBox *languages; 					// Обрання мови застосунку
 
     QPushButton *factory_reset_btn;
 

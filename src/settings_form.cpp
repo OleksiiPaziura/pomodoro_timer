@@ -4,7 +4,7 @@ SettingsForm::SettingsForm(QDialog *parent)
     : QDialog{parent}
 {
     /// BASE INITS
-    setFixedSize(400, 400);
+    setFixedSize(400, 450);
 
     base_layout = new QVBoxLayout;
     main_layout	= new QGridLayout;
@@ -73,6 +73,24 @@ SettingsForm::SettingsForm(QDialog *parent)
     else if (Settings::is_tray_enabled == Settings::Postponed)
         tray_roll->setCurrentText(tr("Postpone"));
 
+    enable_tray_notifications = new QCheckBox(tr("Enable tray notifications"));
+    if (Settings::is_notification_enabled == true)
+        enable_tray_notifications->setChecked(true);
+    else
+        enable_tray_notifications->setChecked(false);
+
+    languages_front_lbl = new QLabel(tr("Language:"));
+    languages = new QComboBox;
+    languages->addItem(tr("English"));
+    languages->addItem(tr("Ukrainian"));
+    languages->addItem(tr("Russian"));
+    if (Settings::locale == "en")
+        languages->setCurrentIndex(0);
+    else if (Settings::locale == "ua")
+        languages->setCurrentIndex(1);
+    else if (Settings::locale == "ru")
+        languages->setCurrentIndex(2);
+
     factory_reset_btn = new QPushButton(tr("Factory reset"));
 
 
@@ -119,7 +137,12 @@ SettingsForm::SettingsForm(QDialog *parent)
     main_layout->addWidget(tray_roll_front_lbl, 10, 0);
     main_layout->addWidget(tray_roll, 10, 1);
 
-    main_layout->addWidget(factory_reset_btn, 11, 1);
+    main_layout->addWidget(enable_tray_notifications, 11, 1);
+
+    main_layout->addWidget(languages_front_lbl, 12, 0);
+    main_layout->addWidget(languages, 12, 1);
+
+    main_layout->addWidget(factory_reset_btn, 13, 1);
 
     // BUTTONS_LAYOUT
     buttons_layout->addWidget(accept_btn);
@@ -177,9 +200,9 @@ void SettingsForm::save_settings(bool is_reset)
     settings.beginGroup("Sounds");
     if (is_reset)
     {
-        settings.setValue("roundSoundPath", "../sounds/sound1.wav");
-        settings.setValue("shortBreakSoundPath", "../sounds/sound1.wav");
-        settings.setValue("longBreakSoundPath", "../sounds/sound1.wav");
+        settings.setValue("roundSoundPath", "./sounds/sound1.wav");
+        settings.setValue("shortBreakSoundPath", "./sounds/sound1.wav");
+        settings.setValue("longBreakSoundPath", "./sounds/sound1.wav");
     }
     else
     {
@@ -202,6 +225,7 @@ void SettingsForm::save_settings(bool is_reset)
     if (is_reset)
     {
         settings.setValue("isTrayEnabled", Settings::Postponed);
+        settings.setValue("isTrayNotificationsEnabled", false);
     }
     else
     {
@@ -211,6 +235,8 @@ void SettingsForm::save_settings(bool is_reset)
             settings.setValue("isTrayEnabled", Settings::Disabled);
         else if (tray_roll->currentText() == tr("Postpone"))
             settings.setValue("isTrayEnabled", Settings::Postponed);
+
+        settings.setValue("isTrayNotificationsEnabled", Settings::is_notification_enabled);
     }
     settings.endGroup();
 }
@@ -221,6 +247,19 @@ void SettingsForm::save_changings()
     Settings::round_time = round_time_slider->value() * Settings::SEC_IN_MIN;
     Settings::short_break_time = short_break_slider->value() * Settings::SEC_IN_MIN;
     Settings::long_break_time = long_break_slider->value() * Settings::SEC_IN_MIN;
+
+    if (enable_tray_notifications->isChecked())
+        Settings::is_notification_enabled = true;
+    else
+        Settings::is_notification_enabled = false;
+
+    if (languages->currentIndex() == 0)
+        Settings::locale = "en";
+    else if (languages->currentIndex() == 1)
+        Settings::locale = "ua";
+    else if (languages->currentIndex() == 2)
+        Settings::locale = "ru";
+
     save_settings();
     accept();
     close();
@@ -238,7 +277,7 @@ void SettingsForm::change_round_sound()
     Settings::round_sound.stop();
 
     QFileDialog *select_file = new QFileDialog;
-    QUrl new_path = QUrl::fromLocalFile(select_file->getOpenFileName(this, "Sound file", "../sounds", "Sound files (*.wav)"));
+    QUrl new_path = QUrl::fromLocalFile(select_file->getOpenFileName(this, "Sound file", "./sounds", "Sound files (*.wav)"));
 
     if (!new_path.isEmpty())
         Settings::round_sound.setSource(new_path);
@@ -258,7 +297,7 @@ void SettingsForm::change_short_break_sound()
     Settings::short_break_sound.stop();
 
     QFileDialog *select_file = new QFileDialog;
-    QUrl new_path = QUrl::fromLocalFile(select_file->getOpenFileName(this, "Sound file", "../sounds", "Sound files (*.wav)"));
+    QUrl new_path = QUrl::fromLocalFile(select_file->getOpenFileName(this, "Sound file", "./sounds", "Sound files (*.wav)"));
 
     if (!new_path.isEmpty())
         Settings::short_break_sound.setSource(new_path);
@@ -278,7 +317,7 @@ void SettingsForm::change_long_break_sound()
     Settings::long_break_sound.stop();
 
     QFileDialog *select_file = new QFileDialog;
-    QUrl new_path = QUrl::fromLocalFile(select_file->getOpenFileName(this, "Sound file", "../sounds", "Sound files (*.wav)"));
+    QUrl new_path = QUrl::fromLocalFile(select_file->getOpenFileName(this, "Sound file", "./sounds", "Sound files (*.wav)"));
 
     if (!new_path.isEmpty())
         Settings::long_break_sound.setSource(new_path);

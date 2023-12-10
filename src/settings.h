@@ -45,6 +45,7 @@ public:
     // Додаткові дані
     static bool is_round;
     static QString locale;
+    static bool is_notification_enabled;
 };
 
 #endif // SETTINGS_H

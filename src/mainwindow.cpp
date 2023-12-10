@@ -13,8 +13,6 @@ MainWindow::MainWindow(QWidget *parent)
     setCentralWidget(central_widget);
     central_widget->setLayout(main_layout);
 
-    setWindowIcon(QIcon("../icons/icon2.ico"));
-
     setPalette(Settings::round_color);
     timeout_counter = 0;
     pause_counter = 0;
@@ -121,7 +119,8 @@ void MainWindow::loadSettings()
         settings.contains("Timings/roundTime") &&
         settings.contains("Timings/shortBreakTime") &&
         settings.contains("Timings/longBreakTime") &&
-        settings.contains("Tray/isTrayEnabled"))
+        settings.contains("Tray/isTrayEnabled") &&
+        settings.contains("Tray/isTrayNotificationsEnabled"))
     {
         // Timings
         settings.beginGroup("Timings");
@@ -149,13 +148,14 @@ void MainWindow::loadSettings()
         // Tray
         settings.beginGroup("Tray");
         Settings::is_tray_enabled = settings.value("isTrayEnabled").value<Settings::TrayEnabled>();
+        Settings::is_notification_enabled = settings.value("isTrayNotificationsEnabled").toBool();
         settings.endGroup();
     }
     else
     {
-        Settings::round_sound.setSource(QUrl::fromLocalFile("../sounds/sound1.wav"));
-        Settings::short_break_sound.setSource(QUrl::fromLocalFile("../sounds/sound1.wav"));
-        Settings::long_break_sound.setSource(QUrl::fromLocalFile("../sounds/sound1.wav"));
+        Settings::round_sound.setSource(QUrl::fromLocalFile("./sounds/sound1.wav"));
+        Settings::short_break_sound.setSource(QUrl::fromLocalFile("./sounds/sound1.wav"));
+        Settings::long_break_sound.setSource(QUrl::fromLocalFile("./sounds/sound1.wav"));
     }
 }
 
@@ -381,7 +381,11 @@ void MainWindow::openSettings()
 // Відкриття вікна інформації про додаток
 void MainWindow::openCredits()
 {
-    QMessageBox::information(this, tr("Credits"), tr("Version: 2.0.1\nCreated by: Oleksii Paziura"));
+    QMessageBox::information(this, tr("Credits"), tr("Created by:\n"
+                                                     "->Oleksii Paziura\n"
+                                                     "->Oleksandr Zozenko\n"
+                                                     "->Maksym Zhuiboroda\n"
+                                                     "->Ivan Kundenko"));
 }
 
 void MainWindow::exitApplication()
@@ -426,7 +430,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     if (Settings::is_tray_enabled == Settings::Enabled)
     {
         hide();
-        tray = new QSystemTrayIcon(QIcon("../icons/icon2.ico"));
+        tray = new QSystemTrayIcon(QIcon("./icons/icon2.ico"));
         tray_exit = new QAction(tr("Exit"));
         tray_menu = new QMenu;
         tray_menu->addAction(tray_exit);
@@ -434,6 +438,10 @@ void MainWindow::closeEvent(QCloseEvent *event)
         connect(tray, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(onTrayIconActivated(QSystemTrayIcon::ActivationReason)));
         connect(tray_exit, SIGNAL(triggered()), this, SLOT(exitApplication()));
         tray->show();
+
+        if (Settings::is_notification_enabled)
+            tray->showMessage(tr("Pomodoro"), tr("Program is in tray"));
+
         event->ignore();
     }
 }
