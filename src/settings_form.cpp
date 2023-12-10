@@ -245,10 +245,16 @@ void SettingsForm::save_settings(bool is_reset)
     settings.beginGroup("Statistics");
     if (is_reset && statistics_reset == QMessageBox::Yes)
     {
-        settings.setValue("totalSeconds", 0);
-        settings.setValue("totalRounds", 0);
-        settings.setValue("todaySeconds", 0);
-        settings.setValue("todayRounds", 0);
+        settings.setValue("Total/totalSeconds", 0);
+        settings.setValue("Total/totalRounds", 0);
+        settings.setValue("Daily/todaySeconds", 0);
+        settings.setValue("Daily/todayRounds", 0);
+        settings.setValue("Weekly/weeklySeconds", 0);
+        settings.setValue("Weekly/weeklyRounds", 0);
+        settings.setValue("Monthly/monthlySeconds", 0);
+        settings.setValue("Monthly/monthlyRounds", 0);
+        settings.setValue("Annual/annualSeconds", 0);
+        settings.setValue("Annual/annualRounds", 0);
     }
     settings.endGroup();
 }

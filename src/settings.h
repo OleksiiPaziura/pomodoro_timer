@@ -47,6 +47,12 @@ public:
     static int total_seconds;
     static int today_rounds;
     static int today_seconds;
+    static int weekly_rounds;
+    static int weekly_seconds;
+    static int monthly_rounds;
+    static int monthly_seconds;
+    static int annual_rounds;
+    static int annual_seconds;
 
     // Додаткові дані
     static QString locale;

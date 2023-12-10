@@ -111,13 +111,16 @@ MainWindow::MainWindow(QWidget *parent)
 // Функція для конвертування секунд у формат mm:ss
 QString MainWindow::convertTime(int total_seconds, bool with_letters)
 {
-    QString hours = QString::number(total_seconds / 3600);
-    int remaining = total_seconds % 3600;
-    QString minutes = QString::number(remaining / 60);
-    QString seconds = QString::number(remaining % 60);
+    QString hours,
+            minutes,
+            seconds;
 
     if (with_letters)
     {
+        hours = QString::number(total_seconds / 3600);
+        int remaining = total_seconds % 3600;
+        minutes = QString::number(remaining / 60);
+        seconds = QString::number(remaining % 60);
         if (hours.toInt() < 1)
             return minutes + tr(" min ") + seconds + tr(" sec");
         else
@@ -125,6 +128,9 @@ QString MainWindow::convertTime(int total_seconds, bool with_letters)
     }
     else
     {
+        minutes = QString::number(total_seconds / 60);
+        seconds = QString::number(total_seconds % 60);
+
         if (minutes.size() == 1)
         minutes.push_front("0");
 
@@ -180,10 +186,32 @@ void MainWindow::loadSettings()
 
         // Statistics
         settings.beginGroup("Statistics");
-        Settings::total_seconds = settings.value("Total/totalSeconds").toInt();
-        Settings::total_rounds = settings.value("Total/totalRounds").toInt();
-        Settings::today_seconds = settings.value("Daily/todaySeconds").toInt();
-        Settings::today_rounds = settings.value("Daily/todayRounds").toInt();
+
+        settings.beginGroup("Total");
+        Settings::total_seconds = settings.value("totalSeconds").toInt();
+        Settings::total_rounds = settings.value("totalRounds").toInt();
+        settings.endGroup();
+
+        settings.beginGroup("Daily");
+        Settings::today_seconds = settings.value("todaySeconds").toInt();
+        Settings::today_rounds = settings.value("todayRounds").toInt();
+        settings.endGroup();
+
+        settings.beginGroup("Weekly");
+        Settings::weekly_seconds = settings.value("weeklySeconds").toInt();
+        Settings::weekly_rounds = settings.value("weeklyRounds").toInt();
+        settings.endGroup();
+
+        settings.beginGroup("Monthly");
+        Settings::monthly_seconds = settings.value("monthlySeconds").toInt();
+        Settings::monthly_rounds = settings.value("monthlyRounds").toInt();
+        settings.endGroup();
+
+        settings.beginGroup("Annual");
+        Settings::annual_seconds = settings.value("annualSeconds").toInt();
+        Settings::annual_rounds = settings.value("annualRounds").toInt();
+        settings.endGroup();
+
         settings.endGroup();
     }
     else
@@ -210,9 +238,15 @@ void MainWindow::reloadScreen()
     stop_btn->setText(tr("Stop"));
 }
 
-void MainWindow::checkDate()
+void MainWindow::updateStatistics()
 {
     QSettings settings("PMDR0", "base");
+
+    Settings::total_seconds++;
+    Settings::today_seconds++;
+    Settings::weekly_seconds++;
+    Settings::monthly_seconds++;
+    Settings::annual_seconds++;
 
     if (QDate::currentDate().day() != settings.value("Statistics/Daily/currentDay"))
     {
@@ -220,6 +254,65 @@ void MainWindow::checkDate()
         Settings::today_seconds = 0;
         Settings::today_rounds = 0;
     }
+
+    if (QDate::currentDate().weekNumber() != settings.value("Statistics/Weekly/currentWeek"))
+    {
+        settings.setValue("Statistics/Weekly/currentWeek", QDate::currentDate().weekNumber());
+        Settings::weekly_seconds = 0;
+        Settings::weekly_rounds = 0;
+    }
+
+    if (QDate::currentDate().month() != settings.value("Statistics/Monthly/currentMonth"))
+    {
+        settings.setValue("Statistics/Monthly/currentMonth", QDate::currentDate().month());
+        Settings::monthly_rounds = 0;
+        Settings::monthly_seconds = 0;
+    }
+
+    if (QDate::currentDate().year() != settings.value("Statistics/Annual/currentYear"))
+    {
+        settings.setValue("Statistics/Annual/currentYear", QDate::currentDate().year());
+        Settings::annual_rounds = 0;
+        Settings::annual_seconds = 0;
+    }
+}
+
+void MainWindow::statisticsInit()
+{
+    QSettings settings("PMDR0", "base");
+
+    settings.beginGroup("Statistics");
+
+    settings.beginGroup("Total");
+    settings.setValue("totalSeconds", Settings::total_seconds);
+    settings.setValue("totalRounds", Settings::total_rounds);
+    settings.endGroup();
+
+    settings.beginGroup("Daily");
+    settings.setValue("currentDay", QDate::currentDate().day());
+    settings.setValue("todaySeconds", Settings::today_seconds);
+    settings.setValue("todayRounds", Settings::today_rounds);
+    settings.endGroup();
+
+    settings.beginGroup("Weekly");
+    settings.setValue("currentWeek", QDate::currentDate().weekNumber());
+    settings.setValue("weeklySeconds", Settings::weekly_seconds);
+    settings.setValue("weeklyRounds", Settings::weekly_rounds);
+    settings.endGroup();
+
+    settings.beginGroup("Monthly");
+    settings.setValue("currentMonth", QDate::currentDate().month());
+    settings.setValue("monthlySeconds", Settings::monthly_seconds);
+    settings.setValue("monthlyRounds", Settings::monthly_rounds);
+    settings.endGroup();
+
+    settings.beginGroup("Annual");
+    settings.setValue("currentYear", QDate::currentDate().year());
+    settings.setValue("annualSeconds", Settings::annual_seconds);
+    settings.setValue("annualRounds", Settings::annual_rounds);
+    settings.endGroup();
+
+    settings.endGroup();
 }
 
 // Старт/Пауза/Продовження таймеру
@@ -286,9 +379,7 @@ void MainWindow::stopTimer()
 // Цикл програми під час раунда
 void MainWindow::onRoundTimeout()
 {
-    Settings::total_seconds++;
-    Settings::today_seconds++;
-    checkDate();
+    updateStatistics();
 
     current_round = Settings::Round;
     setPalette(Settings::round_color);
@@ -301,6 +392,9 @@ void MainWindow::onRoundTimeout()
     {
         Settings::total_rounds++;
         Settings::today_rounds++;
+        Settings::weekly_rounds++;
+        Settings::monthly_rounds++;
+        Settings::annual_rounds++;
 
         round_timer->stop();
         timeout_counter	= 0;
@@ -360,9 +454,7 @@ void MainWindow::onRoundTimeout()
 // Цикл програми під час короткої перерви
 void MainWindow::onShortBreakTimeout()
 {
-    Settings::total_seconds++;
-    Settings::today_seconds++;
-    checkDate();
+    updateStatistics();
 
     dial->setValue(++timeout_counter);
     time_left->setText(convertTime(Settings::short_break_time - timeout_counter));
@@ -387,9 +479,7 @@ void MainWindow::onShortBreakTimeout()
 // Цикл програми під час довгої перерви
 void MainWindow::onLongBreakTimeout()
 {
-    Settings::total_seconds++;
-    Settings::today_seconds++;
-    checkDate();
+    updateStatistics();
 
     dial->setValue(++timeout_counter);
     time_left->setText(convertTime(Settings::long_break_time - timeout_counter));
@@ -414,27 +504,25 @@ void MainWindow::onLongBreakTimeout()
 // Інтерактивна обробка візуального відображення таймеру
 void MainWindow::onDialChange(int value)
 {
+    int difference = dial->value() - timeout_counter;
+    Settings::total_seconds += difference;
+    Settings::today_seconds += difference;
+    Settings::weekly_seconds += difference;
+    Settings::monthly_seconds += difference;
+    Settings::annual_seconds += difference;
+
     if (current_round == Settings::Round)
     {
-        Settings::total_seconds += dial->value() - timeout_counter;
-        Settings::today_seconds += dial->value() - timeout_counter;
-
         timeout_counter = dial->value();
         time_left->setText(convertTime(Settings::round_time - value));
     }
     else if (current_round == Settings::ShortBreak)
     {
-        Settings::total_seconds += dial->value() - timeout_counter;
-        Settings::today_seconds += dial->value() - timeout_counter;
-
         timeout_counter = dial->value();
         time_left->setText(convertTime(Settings::short_break_time - value));
     }
     else if (current_round == Settings::LongBreak)
     {
-        Settings::total_seconds += dial->value() - timeout_counter;
-        Settings::today_seconds += dial->value() - timeout_counter;
-
         timeout_counter = dial->value();
         time_left->setText(convertTime(Settings::long_break_time - value));
     }
@@ -477,17 +565,22 @@ void MainWindow::openSettings()
 // Відкриття вікна інформації про додаток
 void MainWindow::openCredits()
 {
-    QMessageBox::information(this, tr("Credits"), tr("Version 2.0.2b\n"
+    QMessageBox::information(this, tr("Credits"), tr("Version 2.1.0\n"
                                                      "Created by: Oleksii Paziura"));
 }
 
 void MainWindow::openStatistics()
 {
     QMessageBox statistics;
-
     statistics.setWindowTitle(tr("Statistics"));
     statistics.setInformativeText("Today rounds: " + QString::number(Settings::today_rounds) +
                                   "\nToday seconds: " + convertTime(Settings::today_seconds, true) +
+                                  "\nWeekly rounds: " + QString::number(Settings::weekly_rounds) +
+                                  "\nWeekly seconds: " + convertTime(Settings::weekly_seconds, true) +
+                                  "\nMonthly rounds: " + QString::number(Settings::monthly_rounds) +
+                                  "\nMonthly seconds: " + convertTime(Settings::monthly_seconds, true) +
+                                  "\nAnnual rounds: " + QString::number(Settings::annual_rounds) +
+                                  "\nAnnual seconds: " + convertTime(Settings::annual_seconds, true) +
                                   "\nTotal rounds: " + QString::number(Settings::total_rounds) +
                                   "\nTotal seconds: " + convertTime(Settings::total_seconds, true));
     statistics.setIcon(QMessageBox::Information);
@@ -510,40 +603,7 @@ void MainWindow::onTrayIconActivated(QSystemTrayIcon::ActivationReason reason)
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    QSettings settings("PMDR0", "base");
-
-    settings.beginGroup("Statistics");
-
-    settings.beginGroup("Total");
-    settings.setValue("totalSeconds", Settings::total_seconds);
-    settings.setValue("totalRounds", Settings::total_rounds);
-    settings.endGroup();
-
-    settings.beginGroup("Daily");
-    settings.setValue("currentDay", QDate::currentDate().day());
-    settings.setValue("todaySeconds", Settings::today_seconds);
-    settings.setValue("todayRounds", Settings::today_rounds);
-    settings.endGroup();
-
-//    settings.beginGroup("Weekly");
-//    settings.setValue("currentWeek", QDate::currentDate().day());
-//    settings.setValue("weekSeconds", Settings::today_rounds);
-//    settings.setValue("weekRounds", Settings::today_rounds);
-//    settings.endGroup();
-
-//    settings.beginGroup("Monthly");
-//    settings.setValue("currentMonth", QDate::currentDate().day());
-//    settings.setValue("monthSeconds", Settings::today_rounds);
-//    settings.setValue("monthRounds", Settings::today_rounds);
-//    settings.endGroup();
-
-//    settings.beginGroup("Annual");
-//    settings.setValue("currentYear", QDate::currentDate().day());
-//    settings.setValue("yearSeconds", Settings::today_rounds);
-//    settings.setValue("yearRounds", Settings::today_rounds);
-//    settings.endGroup();
-
-    settings.endGroup();
+    statisticsInit();
 
     if (Settings::is_tray_enabled == Settings::Postponed)
     {
