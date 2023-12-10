@@ -12,6 +12,7 @@ private:
     /// CONSTANTS
     // Кількість відтворюваних можливих хвилин для встеновлення
     const int SLIDER_MINS = 5 * Settings::SEC_IN_MIN;
+    int statistics_reset;
 
     /// LAYOUTS
     QVBoxLayout *base_layout;				// Базовий макет

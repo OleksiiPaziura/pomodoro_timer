@@ -14,6 +14,7 @@ SettingsForm::SettingsForm(QDialog *parent)
     setLayout(base_layout);
     base_layout->addLayout(main_layout);
     base_layout->addLayout(buttons_layout);
+    statistics_reset = QMessageBox::No;
 
 
 
@@ -239,6 +240,17 @@ void SettingsForm::save_settings(bool is_reset)
         settings.setValue("isTrayNotificationsEnabled", Settings::is_notification_enabled);
     }
     settings.endGroup();
+
+    // Statistics
+    settings.beginGroup("Statistics");
+    if (is_reset && statistics_reset == QMessageBox::Yes)
+    {
+        settings.setValue("totalSeconds", 0);
+        settings.setValue("totalRounds", 0);
+        settings.setValue("todaySeconds", 0);
+        settings.setValue("todayRounds", 0);
+    }
+    settings.endGroup();
 }
 
 // Збереження налаштувань при натисканні кнопки "Зберігти"
@@ -400,6 +412,11 @@ void SettingsForm::factory_reset()
         settings.remove("Sounds");
         settings.remove("Timings");
         settings.remove("Tray");
+
+        statistics_reset = QMessageBox::warning(this, tr("Statistics"), tr("Do you want to clear statistics?"),
+                                       QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+        if (statistics_reset == QMessageBox::Yes)
+            settings.remove("Statistics");
 
         qApp->quit();
         QProcess::startDetached(qApp->applicationFilePath());

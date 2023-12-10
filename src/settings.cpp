@@ -19,3 +19,8 @@ QPalette Settings::long_break_color = QPalette("#DCDE66");
 Settings::TrayEnabled Settings::is_tray_enabled = Settings::Postponed;
 QString Settings::locale = "en";
 bool Settings::is_notification_enabled = false;
+
+int Settings::total_rounds = 0;
+int Settings::total_seconds = 0;
+int Settings::today_rounds = 0;
+int Settings::today_seconds = 0;

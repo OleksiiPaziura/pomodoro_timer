@@ -4,9 +4,9 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++17
 
-VERSION = 2.0.2
+VERSION = 2.0.2a
 QMAKE_TARGET_PRODUCT = Pomodoro
-QMAKE_TARGET_DESCRIPTION = Simple minimalist pomodoro timer
+QMAKE_TARGET_DESCRIPTION = Simple minimalist pomodoro timer.
 QMAKE_TARGET_COPYRIGHT = O.O. Paziura
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -28,7 +28,7 @@ TRANSLATIONS += \
     ../translations/Pomodoro_ua.ts \
     ../translations/Pomodoro_ru.ts
 
-RC_FILE = Pomodoro.rc
+RC_ICONS = Pomodoro.ico
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

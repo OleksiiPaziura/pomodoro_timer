@@ -42,6 +42,12 @@ public:
     static const int DEFAULT_LONG_BREAK_TIME_IN_SEC = 15 * SEC_IN_MIN;
     static QPalette long_break_color;
 
+    // Статистичні дані
+    static int total_rounds;
+    static int total_seconds;
+    static int today_rounds;
+    static int today_seconds;
+
     // Додаткові дані
     static QString locale;
     static bool is_notification_enabled;

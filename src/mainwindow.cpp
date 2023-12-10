@@ -5,7 +5,9 @@ MainWindow::MainWindow(QWidget *parent)
 {
     /// BASE INITS
     setFixedSize(300, 400);
-    load_settings();
+    setWindowOpacity(0.97);
+
+    loadSettings();
 
     if (Settings::locale == "en")
         translator.load("./translations/Pomodoro_en", ".");
@@ -34,8 +36,10 @@ MainWindow::MainWindow(QWidget *parent)
     menu = new QMenu(tr("File"));
     settings_action = new QAction(tr("Settings"));
     credits_action = new QAction(tr("Credits"));
+    statistics_action = new QAction(tr("Statistics"));
     menu->addAction(settings_action);
     menu->addAction(credits_action);
+    menu->addAction(statistics_action);
     menuBar()->addMenu(menu);
 
 
@@ -91,6 +95,7 @@ MainWindow::MainWindow(QWidget *parent)
     // Обробка натискання на пункти меню
     connect(settings_action, SIGNAL(triggered()), this, SLOT(openSettings()));
     connect(credits_action, SIGNAL(triggered()), this, SLOT(openCredits()));
+    connect(statistics_action, SIGNAL(triggered()), this, SLOT(openStatistics()));
 
     // Робота з таймером
     connect(start_btn, SIGNAL(clicked()), this, SLOT(startTimer()));
@@ -104,21 +109,33 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 // Функція для конвертування секунд у формат mm:ss
-QString MainWindow::convertTime(int total_seconds)
+QString MainWindow::convertTime(int total_seconds, bool with_letters)
 {
-    QString minutes = QString::number(total_seconds / 60);
-    QString seconds = QString::number(total_seconds % 60);
+    QString hours = QString::number(total_seconds / 3600);
+    int remaining = total_seconds % 3600;
+    QString minutes = QString::number(remaining / 60);
+    QString seconds = QString::number(remaining % 60);
 
-    if (minutes.size() == 1)
+    if (with_letters)
+    {
+        if (hours.toInt() < 1)
+            return minutes + tr(" min ") + seconds + tr(" sec");
+        else
+            return hours + tr(" hours, ") + minutes + tr(" min, ") + seconds + tr(" sec");
+    }
+    else
+    {
+        if (minutes.size() == 1)
         minutes.push_front("0");
 
-    if (seconds.size() == 1)
+        if (seconds.size() == 1)
         seconds.push_front("0");
 
-    return minutes + ":" + seconds;
+        return minutes + ":" + seconds;
+    }
 }
 
-void MainWindow::load_settings()
+void MainWindow::loadSettings()
 {
     QSettings settings("PMDR0", "base");
 
@@ -160,6 +177,14 @@ void MainWindow::load_settings()
         Settings::is_tray_enabled = settings.value("isTrayEnabled").value<Settings::TrayEnabled>();
         Settings::is_notification_enabled = settings.value("isTrayNotificationsEnabled").toBool();
         settings.endGroup();
+
+        // Statistics
+        settings.beginGroup("Statistics");
+        Settings::total_seconds = settings.value("totalSeconds").toInt();
+        Settings::total_rounds = settings.value("totalRounds").toInt();
+        Settings::today_seconds = settings.value("todaySeconds").toInt();
+        Settings::today_rounds = settings.value("todayRounds").toInt();
+        settings.endGroup();
     }
     else
     {
@@ -169,7 +194,7 @@ void MainWindow::load_settings()
     }
 }
 
-void MainWindow::reload_screen()
+void MainWindow::reloadScreen()
 {
     menu->setTitle(tr("File"));
     settings_action->setText(tr("Settings"));
@@ -249,6 +274,7 @@ void MainWindow::stopTimer()
 // Цикл програми під час раунда
 void MainWindow::onRoundTimeout()
 {
+    Settings::total_seconds++;
     current_round = Settings::Round;
     setPalette(Settings::round_color);
     dial->setRange(0, Settings::round_time);
@@ -258,6 +284,7 @@ void MainWindow::onRoundTimeout()
 
     if (timeout_counter > Settings::round_time)
     {
+        Settings::total_rounds++;
         round_timer->stop();
         timeout_counter	= 0;
 
@@ -316,6 +343,7 @@ void MainWindow::onRoundTimeout()
 // Цикл програми під час короткої перерви
 void MainWindow::onShortBreakTimeout()
 {
+    Settings::total_seconds++;
     dial->setValue(++timeout_counter);
     time_left->setText(convertTime(Settings::short_break_time - timeout_counter));
 
@@ -339,6 +367,7 @@ void MainWindow::onShortBreakTimeout()
 // Цикл програми під час довгої перерви
 void MainWindow::onLongBreakTimeout()
 {
+    Settings::total_seconds++;
     dial->setValue(++timeout_counter);
     time_left->setText(convertTime(Settings::long_break_time - timeout_counter));
 
@@ -364,16 +393,19 @@ void MainWindow::onDialChange(int value)
 {
     if (current_round == Settings::Round)
     {
+        Settings::total_seconds += dial->value() - timeout_counter;
         timeout_counter = dial->value();
         time_left->setText(convertTime(Settings::round_time - value));
     }
     else if (current_round == Settings::ShortBreak)
     {
+        Settings::total_seconds += dial->value() - timeout_counter;
         timeout_counter = dial->value();
         time_left->setText(convertTime(Settings::short_break_time - value));
     }
     else if (current_round == Settings::LongBreak)
     {
+        Settings::total_seconds += dial->value() - timeout_counter;
         timeout_counter = dial->value();
         time_left->setText(convertTime(Settings::long_break_time - value));
     }
@@ -391,7 +423,7 @@ void MainWindow::openSettings()
 
     if (sf->exec() == QDialog::Accepted)
     {
-        load_settings();
+        loadSettings();
         --timeout_counter;
         if (current_round == Settings::Pomodoro::Round)
             onRoundTimeout();
@@ -409,15 +441,27 @@ void MainWindow::openSettings()
 
         qApp->installTranslator(&translator);
 
-        reload_screen();
+        reloadScreen();
     }
 }
 
 // Відкриття вікна інформації про додаток
 void MainWindow::openCredits()
 {
-    QMessageBox::information(this, tr("Credits"), tr("Version 2.0.2\n"
-                                                     "Created by: Oleksii Paziura\n"));
+    QMessageBox::information(this, tr("Credits"), tr("Version 2.0.2a\n"
+                                                     "Created by: Oleksii Paziura"));
+}
+
+void MainWindow::openStatistics()
+{
+    QMessageBox statistics;
+    statistics.setWindowTitle(tr("Statistics"));
+    statistics.setInformativeText("Today rounds: " + QString::number(Settings::today_rounds) +
+                                  "\nToday seconds: " + convertTime(Settings::today_seconds, true) +
+                                  "\nTotal rounds: " + QString::number(Settings::total_rounds) +
+                                  "\nTotal seconds: " + convertTime(Settings::total_seconds, true));
+    statistics.setIcon(QMessageBox::Information);
+    statistics.exec();
 }
 
 void MainWindow::exitApplication()
@@ -436,6 +480,15 @@ void MainWindow::onTrayIconActivated(QSystemTrayIcon::ActivationReason reason)
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
+    QSettings settings("PMDR0", "base");
+
+    settings.beginGroup("Statistics");
+    settings.setValue("totalSeconds", Settings::total_seconds);
+    settings.setValue("totalRounds", Settings::total_rounds);
+    settings.setValue("todaySeconds", Settings::today_rounds);
+    settings.setValue("todayRounds", Settings::today_rounds);
+    settings.endGroup();
+
     if (Settings::is_tray_enabled == Settings::Postponed)
     {
         QMessageBox msg;

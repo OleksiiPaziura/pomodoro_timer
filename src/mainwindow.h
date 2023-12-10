@@ -28,6 +28,7 @@ private:
     QMenu *menu;				// Меню зверху програми
     QAction *settings_action;	// Елемент меню для відкриття налаштувань
     QAction *credits_action;	// Елемент меню для виведення інформації про додаток
+    QAction *statistics_action;	// Елемент меню для виведення інформації про поточні статистичні дані
 
     /// WIDGETS
     QLabel *time_left;			// Помітка скільки часу лишилось до кінця раунда чи перерви
@@ -60,9 +61,9 @@ public:
     MainWindow(QWidget *parent = nullptr);
 
     // Функція для конвертування секунд у формат mm:ss
-    QString convertTime(int total_seconds);
-    void load_settings();
-    void reload_screen();
+    QString convertTime(int total_seconds, bool with_letters = false);
+    void loadSettings();
+    void reloadScreen();
 
 public slots:
     void startTimer();			// Старт/Пауза/Продовження таймеру
@@ -75,6 +76,7 @@ public slots:
 
     void openSettings();		// Відкриття вікна налаштувань
     void openCredits();			// Відкриття вікна інформації про додаток
+    void openStatistics();		// Відкриття вікна статистичних даних
 
     void exitApplication();
 
