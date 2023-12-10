@@ -64,6 +64,7 @@ public:
     QString convertTime(int total_seconds, bool with_letters = false);
     void loadSettings();
     void reloadScreen();
+    void checkDate();
 
 public slots:
     void startTimer();			// Старт/Пауза/Продовження таймеру
