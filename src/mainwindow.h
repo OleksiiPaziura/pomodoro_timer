@@ -11,6 +11,13 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 private:
+    enum StartButtonState
+    {
+        Start,
+        Pause,
+        Continue
+    } start_btn_state;
+
     Settings::Pomodoro current_round; // Раунд, що зараз триває
 
     /// LAYOUTS
@@ -46,12 +53,16 @@ private:
     QMenu *tray_menu;
     QAction *tray_exit;
 
+    /// LOCALE
+    QTranslator translator;
+
 public:
     MainWindow(QWidget *parent = nullptr);
 
     // Функція для конвертування секунд у формат mm:ss
     QString convertTime(int total_seconds);
-    void loadSettings();
+    void load_settings();
+    void reload_screen();
 
 public slots:
     void startTimer();			// Старт/Пауза/Продовження таймеру

@@ -5,7 +5,15 @@ MainWindow::MainWindow(QWidget *parent)
 {
     /// BASE INITS
     setFixedSize(300, 400);
-    loadSettings();
+    load_settings();
+
+    if (Settings::locale == "en")
+        translator.load("./translations/Pomodoro_en", ".");
+    else if (Settings::locale == "ua")
+        translator.load("./translations/Pomodoro_ua", ".");
+    else if (Settings::locale == "ru")
+        translator.load("./translations/Pomodoro_ru", ".");
+    qApp->installTranslator(&translator);
 
     QWidget *central_widget = new QWidget;
     main_layout = new QVBoxLayout;
@@ -45,6 +53,8 @@ MainWindow::MainWindow(QWidget *parent)
     start_btn = new QPushButton(tr("Start"));
     start_btn->setMinimumWidth(150);
     start_btn->setMinimumHeight(25);
+    start_btn_state = Start;
+
     stop_btn = new QPushButton(tr("Stop"));
     stop_btn->setMinimumWidth(150);
     stop_btn->setMinimumHeight(25);
@@ -108,7 +118,7 @@ QString MainWindow::convertTime(int total_seconds)
     return minutes + ":" + seconds;
 }
 
-void MainWindow::loadSettings()
+void MainWindow::load_settings()
 {
     QSettings settings("PMDR0", "base");
 
@@ -159,11 +169,25 @@ void MainWindow::loadSettings()
     }
 }
 
+void MainWindow::reload_screen()
+{
+    menu->setTitle(tr("File"));
+    settings_action->setText(tr("Settings"));
+    credits_action->setText(tr("Credits"));
+
+    if (start_btn_state == Pause)
+        start_btn->setText(tr("Pause"));
+    else if (start_btn_state == Start)
+        start_btn->setText(tr("Start"));
+    else if (start_btn_state == Continue)
+        start_btn->setText(tr("Continue"));
+
+    stop_btn->setText(tr("Stop"));
+}
+
 // Старт/Пауза/Продовження таймеру
 void MainWindow::startTimer()
 {
-    Settings::is_round = true;
-
     if (start_btn->text() == tr("Start"))
     {
         if (current_round == Settings::Round)
@@ -183,6 +207,7 @@ void MainWindow::startTimer()
         }
 
         start_btn->setText(tr("Pause"));
+        start_btn_state = Pause;
     }
     else
     {
@@ -196,12 +221,14 @@ void MainWindow::startTimer()
                 long_break_timer->start(1000);
 
             start_btn->setText(tr("Pause"));
+            start_btn_state = Pause;
         }
         else
         {
             short_break_timer->stop();
             round_timer->stop();
             start_btn->setText(tr("Continue"));
+            start_btn_state = Continue;
         }
     }
 }
@@ -216,7 +243,7 @@ void MainWindow::stopTimer()
     time_left->setText(convertTime(Settings::round_time - timeout_counter));
     dial->setValue(0);
     start_btn->setText(tr("Start"));
-    Settings::is_round = false;
+    start_btn_state = Start;
 }
 
 // Цикл програми під час раунда
@@ -226,7 +253,6 @@ void MainWindow::onRoundTimeout()
     setPalette(Settings::round_color);
     dial->setRange(0, Settings::round_time);
 
-    Settings::is_round = true;
     dial->setValue(++timeout_counter);
     time_left->setText(convertTime(Settings::round_time - timeout_counter));
 
@@ -290,19 +316,18 @@ void MainWindow::onRoundTimeout()
 // Цикл програми під час короткої перерви
 void MainWindow::onShortBreakTimeout()
 {
-    Settings::is_round = true;
     dial->setValue(++timeout_counter);
     time_left->setText(convertTime(Settings::short_break_time - timeout_counter));
 
     if (timeout_counter > Settings::short_break_time)
     {
         Settings::round_sound.play();
-        Settings::is_round = false;
         short_break_timer->stop();
         timeout_counter = 0;
 
         current_round = Settings::Round;
         start_btn->setText(tr("Start"));
+        start_btn_state = Start;
         setPalette(Settings::round_color);
 
         time_left->setText(convertTime(Settings::round_time - timeout_counter));
@@ -314,19 +339,18 @@ void MainWindow::onShortBreakTimeout()
 // Цикл програми під час довгої перерви
 void MainWindow::onLongBreakTimeout()
 {
-    Settings::is_round = true;
     dial->setValue(++timeout_counter);
     time_left->setText(convertTime(Settings::long_break_time - timeout_counter));
 
     if (timeout_counter > Settings::long_break_time)
     {
         Settings::round_sound.play();
-        Settings::is_round = false;
         long_break_timer->stop();
         timeout_counter = 0;
 
         current_round = Settings::Round;
         start_btn->setText(tr("Start"));
+        start_btn_state = Start;
         setPalette(Settings::round_color);
 
         time_left->setText(convertTime(Settings::round_time - timeout_counter));
@@ -367,7 +391,7 @@ void MainWindow::openSettings()
 
     if (sf->exec() == QDialog::Accepted)
     {
-        loadSettings();
+        load_settings();
         --timeout_counter;
         if (current_round == Settings::Pomodoro::Round)
             onRoundTimeout();
@@ -375,17 +399,25 @@ void MainWindow::openSettings()
             onShortBreakTimeout();
         else if (current_round == Settings::Pomodoro::LongBreak)
             onLongBreakTimeout();
+
+        if (Settings::locale == "en")
+            translator.load("./translations/Pomodoro_en", ".");
+        else if (Settings::locale == "ua")
+            translator.load("./translations/Pomodoro_ua", ".");
+        else if (Settings::locale == "ru")
+            translator.load("./translations/Pomodoro_ru", ".");
+
+        qApp->installTranslator(&translator);
+
+        reload_screen();
     }
 }
 
 // Відкриття вікна інформації про додаток
 void MainWindow::openCredits()
 {
-    QMessageBox::information(this, tr("Credits"), tr("Created by:\n"
-                                                     "->Oleksii Paziura\n"
-                                                     "->Oleksandr Zozenko\n"
-                                                     "->Maksym Zhuiboroda\n"
-                                                     "->Ivan Kundenko"));
+    QMessageBox::information(this, tr("Credits"), tr("Version 2.0.2\n"
+                                                     "Created by: Oleksii Paziura\n"));
 }
 
 void MainWindow::exitApplication()

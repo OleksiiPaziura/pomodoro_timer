@@ -43,7 +43,6 @@ public:
     static QPalette long_break_color;
 
     // Додаткові дані
-    static bool is_round;
     static QString locale;
     static bool is_notification_enabled;
 };

@@ -4,7 +4,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++17
 
-VERSION = 2.0.1
+VERSION = 2.0.2
 QMAKE_TARGET_PRODUCT = Pomodoro
 QMAKE_TARGET_DESCRIPTION = Simple minimalist pomodoro timer
 QMAKE_TARGET_COPYRIGHT = O.O. Paziura
@@ -24,9 +24,9 @@ HEADERS += \
     settings_form.h
 
 TRANSLATIONS += \
-    QtLanguage_en.ts \
-    QtLanguage_ua.ts \
-    QtLanguage_ru.ts
+    ../translations/Pomodoro_en.ts \
+    ../translations/Pomodoro_ua.ts \
+    ../translations/Pomodoro_ru.ts
 
 RC_FILE = Pomodoro.rc
 
