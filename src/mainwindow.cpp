@@ -5,9 +5,10 @@ MainWindow::MainWindow(QWidget *parent)
 {
     /// BASE INITS
     setFixedSize(300, 400);
-    setWindowOpacity(0.97);
-
+    time_left = new QLabel;
     loadSettings();
+
+    setWindowOpacity(Settings::current_opacity);
 
     if (Settings::locale == "en")
         translator.load("./translations/Pomodoro_en", ".");
@@ -41,10 +42,12 @@ MainWindow::MainWindow(QWidget *parent)
     themes_menu = new QMenu(tr("Themes"));
     reset_theme = new QAction(tr("Reset theme"));
     set_theme = new QMenu(tr("Set theme"));
-    simple_dark_theme = new QAction("SimpleDark");
+    contrast_theme = new QAction("Contrast");
     simple_light_theme = new QAction("SimpleLight");
-    set_theme->addAction(simple_dark_theme);
+    pomodoro_mode_theme = new QAction("PomodoroMode");
+    set_theme->addAction(contrast_theme);
     set_theme->addAction(simple_light_theme);
+    set_theme->addAction(pomodoro_mode_theme);
     themes_menu->addMenu(set_theme);
     themes_menu->addAction(reset_theme);
     menuBar()->addMenu(themes_menu);
@@ -63,9 +66,9 @@ MainWindow::MainWindow(QWidget *parent)
     dial->setMinimumHeight(250);
     dial->setRange(0, Settings::round_time);
 
-    time_left = new QLabel(convertTime(Settings::round_time));
+    time_left->setText(convertTime(Settings::round_time));
     time_left->setAlignment(Qt::AlignCenter);
-    time_left->setFont(QFont("Arial", 20));
+    time_left->setFont(Settings::current_font);
     time_left->setMaximumHeight(25);
 
     start_btn = new QPushButton(tr("Start"));
@@ -110,8 +113,13 @@ MainWindow::MainWindow(QWidget *parent)
     connect(settings_action, SIGNAL(triggered()), this, SLOT(openSettings()));
     connect(credits_action, SIGNAL(triggered()), this, SLOT(openCredits()));
     connect(statistics_action, SIGNAL(triggered()), this, SLOT(openStatistics()));
-    connect(simple_dark_theme, &QAction::triggered, this, [this](){
-        changeTheme(Settings::SimpleDark);
+
+    // Теми
+    connect(pomodoro_mode_theme, &QAction::triggered, this, [this](){
+        changeTheme(Settings::PomodoroMode);
+    });
+    connect(contrast_theme, &QAction::triggered, this, [this](){
+        changeTheme(Settings::Contrast);
     });
     connect(simple_light_theme, &QAction::triggered, this, [this](){
         changeTheme(Settings::SimpleLight);
@@ -577,12 +585,13 @@ void MainWindow::openSettings()
         else if (current_round == Settings::Pomodoro::LongBreak)
             onLongBreakTimeout();
 
+        int translator_result;
         if (Settings::locale == "en")
-            translator.load("./translations/Pomodoro_en", ".");
+            translator_result = translator.load("./translations/Pomodoro_en", ".");
         else if (Settings::locale == "ua")
-            translator.load("./translations/Pomodoro_ua", ".");
+            translator_result = translator.load("./translations/Pomodoro_ua", ".");
         else if (Settings::locale == "ru")
-            translator.load("./translations/Pomodoro_ru", ".");
+            translator_result = translator.load("./translations/Pomodoro_ru", ".");
 
         qApp->installTranslator(&translator);
 
@@ -593,7 +602,7 @@ void MainWindow::openSettings()
 // Відкриття вікна інформації про додаток
 void MainWindow::openCredits()
 {
-    QMessageBox::information(this, tr("Credits"), tr("Version 2.1.0\n"
+    QMessageBox::information(this, tr("Credits"), tr("Version 2.2.0\n"
                                                      "Created by: Oleksii Paziura"));
 }
 
@@ -636,14 +645,35 @@ void MainWindow::changeTheme(Settings::Themes theme_name)
         Settings::round_color = QPalette("#5499DE");
         Settings::short_break_color = QPalette("#66DE6C");
         Settings::long_break_color = QPalette("#DCDE66");
+        Settings::current_font = QFont("Arial", 20);
+        Settings::current_opacity = 0.97;
     }
-    else if (theme_name == Settings::SimpleDark)
+    else if (theme_name == Settings::Contrast)
     {
-        Settings::round_color = QPalette("#FFFFFF");
-        Settings::short_break_color = QPalette("#000000");
-        Settings::long_break_color = QPalette("#AA84FD");
+        Settings::round_color = QPalette("#FF282C");
+        Settings::short_break_color = QPalette("#7700FF");
+        Settings::long_break_color = QPalette("#0888FF");
+        Settings::current_font = QFont("Calibri", 20);
+        Settings::current_opacity = 1;
+    }
+    else if (theme_name == Settings::SimpleLight)
+    {
+        Settings::round_color = QPalette("#D6D4DE");
+        Settings::short_break_color = QPalette("#98AEDE");
+        Settings::long_break_color = QPalette("#DEDEAD");
+        Settings::current_font = QFont("Calibri", 20);
+        Settings::current_opacity = 1;
+    }
+    else if (theme_name == Settings::PomodoroMode)
+    {
+        Settings::round_color = QPalette("#FF3F4C");
+        Settings::short_break_color = QPalette("#FF6C67");
+        Settings::long_break_color = QPalette("#FF7354");
+        Settings::current_font = QFont("Forte", 20);
+        Settings::current_opacity = 1;
     }
 
+    time_left->setFont(Settings::current_font);
     if (current_round == Settings::Round)
         setPalette(Settings::round_color);
     else if (current_round == Settings::ShortBreak)

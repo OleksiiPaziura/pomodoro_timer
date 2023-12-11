@@ -3,6 +3,7 @@
 
 #include <QSoundEffect>
 #include <QPalette>
+#include <QFont>
 
 class Settings
 {
@@ -45,10 +46,13 @@ public:
     // Теми
     static enum Themes
     {
-        SimpleDark,
+        Contrast,
+        PomodoroMode,
         SimpleLight,
         Default
     } current_theme;
+    static QFont current_font;
+    static qreal current_opacity;
 
     // Статистичні дані
     static int total_rounds;

@@ -31,8 +31,9 @@ private:
     QMenu *themes_menu;
     QAction *reset_theme;
     QMenu *set_theme;
-    QAction *simple_dark_theme;
+    QAction *contrast_theme;
     QAction *simple_light_theme;
+    QAction *pomodoro_mode_theme;
 
     QMenu *help_menu;
     QAction *credits_action;	// Елемент меню для виведення інформації про додаток
