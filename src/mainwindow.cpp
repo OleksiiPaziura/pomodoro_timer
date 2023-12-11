@@ -33,14 +33,28 @@ MainWindow::MainWindow(QWidget *parent)
     current_round = Settings::Round;
 
 
-    menu = new QMenu(tr("File"));
+    edit_menu = new QMenu(tr("Edit"));
     settings_action = new QAction(tr("Settings"));
+    edit_menu->addAction(settings_action);
+    menuBar()->addMenu(edit_menu);
+
+    themes_menu = new QMenu(tr("Themes"));
+    reset_theme = new QAction(tr("Reset theme"));
+    set_theme = new QMenu(tr("Set theme"));
+    simple_dark_theme = new QAction("SimpleDark");
+    simple_light_theme = new QAction("SimpleLight");
+    set_theme->addAction(simple_dark_theme);
+    set_theme->addAction(simple_light_theme);
+    themes_menu->addMenu(set_theme);
+    themes_menu->addAction(reset_theme);
+    menuBar()->addMenu(themes_menu);
+
+    help_menu = new QMenu(tr("Help"));
     credits_action = new QAction(tr("Credits"));
     statistics_action = new QAction(tr("Statistics"));
-    menu->addAction(settings_action);
-    menu->addAction(credits_action);
-    menu->addAction(statistics_action);
-    menuBar()->addMenu(menu);
+    help_menu->addAction(statistics_action);
+    help_menu->addAction(credits_action);
+    menuBar()->addMenu(help_menu);
 
 
 
@@ -96,6 +110,15 @@ MainWindow::MainWindow(QWidget *parent)
     connect(settings_action, SIGNAL(triggered()), this, SLOT(openSettings()));
     connect(credits_action, SIGNAL(triggered()), this, SLOT(openCredits()));
     connect(statistics_action, SIGNAL(triggered()), this, SLOT(openStatistics()));
+    connect(simple_dark_theme, &QAction::triggered, this, [this](){
+        changeTheme(Settings::SimpleDark);
+    });
+    connect(simple_light_theme, &QAction::triggered, this, [this](){
+        changeTheme(Settings::SimpleLight);
+    });
+    connect(reset_theme, &QAction::triggered, this, [this](){
+        changeTheme(Settings::Default);
+    });
 
     // Робота з таймером
     connect(start_btn, SIGNAL(clicked()), this, SLOT(startTimer()));
@@ -213,6 +236,11 @@ void MainWindow::loadSettings()
         settings.endGroup();
 
         settings.endGroup();
+
+        settings.beginGroup("Themes");
+        Settings::current_theme = settings.value("currentTheme").value<Settings::Themes>();
+        changeTheme(Settings::current_theme);
+        settings.endGroup();
     }
     else
     {
@@ -224,7 +252,7 @@ void MainWindow::loadSettings()
 
 void MainWindow::reloadScreen()
 {
-    menu->setTitle(tr("File"));
+    edit_menu->setTitle(tr("Edit"));
     settings_action->setText(tr("Settings"));
     credits_action->setText(tr("Credits"));
 
@@ -599,6 +627,34 @@ void MainWindow::onTrayIconActivated(QSystemTrayIcon::ActivationReason reason)
         show();
         delete tray;
     }
+}
+
+void MainWindow::changeTheme(Settings::Themes theme_name)
+{
+    if (theme_name == Settings::Default)
+    {
+        Settings::round_color = QPalette("#5499DE");
+        Settings::short_break_color = QPalette("#66DE6C");
+        Settings::long_break_color = QPalette("#DCDE66");
+    }
+    else if (theme_name == Settings::SimpleDark)
+    {
+        Settings::round_color = QPalette("#FFFFFF");
+        Settings::short_break_color = QPalette("#000000");
+        Settings::long_break_color = QPalette("#AA84FD");
+    }
+
+    if (current_round == Settings::Round)
+        setPalette(Settings::round_color);
+    else if (current_round == Settings::ShortBreak)
+        setPalette(Settings::short_break_color);
+    else if (current_round == Settings::LongBreak)
+        setPalette(Settings::long_break_color);
+
+    QSettings settings("PMDR0", "base");
+    settings.beginGroup("Themes");
+    settings.setValue("currentTheme", theme_name);
+    settings.endGroup();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)

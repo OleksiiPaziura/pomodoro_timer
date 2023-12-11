@@ -25,8 +25,16 @@ private:
     QHBoxLayout *rounds_layout; // Макет для відображення раундів
 
     /// MENU
-    QMenu *menu;				// Меню зверху програми
+    QMenu *edit_menu;				// Меню зверху програми
     QAction *settings_action;	// Елемент меню для відкриття налаштувань
+
+    QMenu *themes_menu;
+    QAction *reset_theme;
+    QMenu *set_theme;
+    QAction *simple_dark_theme;
+    QAction *simple_light_theme;
+
+    QMenu *help_menu;
     QAction *credits_action;	// Елемент меню для виведення інформації про додаток
     QAction *statistics_action;	// Елемент меню для виведення інформації про поточні статистичні дані
 
@@ -83,6 +91,8 @@ public slots:
     void exitApplication();
 
     void onTrayIconActivated(QSystemTrayIcon::ActivationReason reason);
+
+    void changeTheme(Settings::Themes theme_name);
 
 protected:
     void closeEvent(QCloseEvent *event) override;

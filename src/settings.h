@@ -42,6 +42,14 @@ public:
     static const int DEFAULT_LONG_BREAK_TIME_IN_SEC = 15 * SEC_IN_MIN;
     static QPalette long_break_color;
 
+    // Теми
+    static enum Themes
+    {
+        SimpleDark,
+        SimpleLight,
+        Default
+    } current_theme;
+
     // Статистичні дані
     static int total_rounds;
     static int total_seconds;
