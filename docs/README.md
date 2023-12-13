@@ -37,15 +37,11 @@ You can install this project due setup file or build it on your own:
 **Framework:** Qt Widgets (6.5.3)
 
 
-## Usage/Examples
-
-```javascript
-import Component from 'my-project'
-
-function App() {
-  return <Component />
-}
-```
+## Usage
+The main menu of the project is shown at the following picture:
+![[Pasted image 20231213172158.png|300]]
+You can start, pause/continue, stop timer, switch rounds and roll the dial (interactive time-picker). Also you can change some settings:
+![[Pasted image 20231213172341.png|300]]
 
 
 ## Authors
