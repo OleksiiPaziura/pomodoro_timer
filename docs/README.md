@@ -40,9 +40,11 @@ You can install this project due setup file or build it on your own:
 
 ## Usage
 The main menu of the project is shown at the following picture:
+
 ![main_menu|250](https://github.com/OleksiiPaziura/pomodoro_timer/assets/131613795/88119446-cfd3-46f3-8243-1f3e445213f1)
 
 You can start, pause/continue, stop timer, switch rounds and roll the dial (interactive time-picker). Also you can change some settings:
+
 ![settings|250](https://github.com/OleksiiPaziura/pomodoro_timer/assets/131613795/fa1c4983-3791-453d-ae3d-97cb3d156259)
 
 
@@ -59,5 +61,5 @@ If you have any feedback, please reach out to me at alexeypazyura@gmail.com
 
 ## License
 
-[MIT](https://choosealicense.com/licenses/mit/)
+This project was written with [MIT](https://choosealicense.com/licenses/mit/) license.
 
