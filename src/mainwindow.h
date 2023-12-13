@@ -11,6 +11,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 private:
+    // Стан кнопки "Старт"
     enum StartButtonState
     {
         Start,
@@ -25,17 +26,17 @@ private:
     QHBoxLayout *rounds_layout; // Макет для відображення раундів
 
     /// MENU
-    QMenu *edit_menu;				// Меню зверху програми
+    QMenu *edit_menu;			// Випадаючий пункт меню для налаштувань
     QAction *settings_action;	// Елемент меню для відкриття налаштувань
 
-    QMenu *themes_menu;
-    QAction *reset_theme;
-    QMenu *set_theme;
-    QAction *contrast_theme;
-    QAction *simple_light_theme;
-    QAction *pomodoro_mode_theme;
+    QMenu *themes_menu;				// Випадаючий пункт меню для тем
+    QAction *reset_theme;			// Елемент меню для скидання теми
+    QMenu *set_theme;				// Випадаючий пункт меню для вибору теми
+    QAction *contrast_theme;		// Тема "Contrast"
+    QAction *simple_light_theme;	// Тема "SimpleLight"
+    QAction *pomodoro_mode_theme;	// Тема "PomodoroMode"
 
-    QMenu *help_menu;
+    QMenu *help_menu;			// Випадаючий пункт меню для справочної інформації
     QAction *credits_action;	// Елемент меню для виведення інформації про додаток
     QAction *statistics_action;	// Елемент меню для виведення інформації про поточні статистичні дані
 
@@ -59,22 +60,31 @@ private:
     int pause_counter;			// Лічильник для контролю кнопки start_btn
 
     /// TRAY
-    QSystemTrayIcon *tray;
-    QMenu *tray_menu;
-    QAction *tray_exit;
+    QSystemTrayIcon *tray;		// Трей
+    QMenu *tray_menu; 			// Контекстне меню трею
+    QAction *tray_exit;			// Дія контекстного меню, що закриває застосунок
 
     /// LOCALE
-    QTranslator translator;
+    QTranslator translator;		// Перекладач програми
 
 public:
     MainWindow(QWidget *parent = nullptr);
 
     // Функція для конвертування секунд у формат mm:ss
     QString convertTime(int total_seconds, bool with_letters = false);
-    void loadSettings();
-    void reloadScreen();
-    void updateStatistics();
-    void statisticsInit();
+
+    void loadSettings();		// Завантаження налаштувань
+    void reloadScreen();		// Оновлення екрану для роботи QTranslator
+    void updateStatistics();	// Оновлення статистичних даних
+    void loadStatistics();		// Завантаження статистичних даних
+    void widgetsInit();			// Ініціалізація віджетів
+    void connectionsInit();		// Ініціалізація сигналів і слотів
+    void menuInit();			// Ініціалізація верхнього меню
+    void layoutsInit();			// Ініціалізація макетів
+    void layoutsFill();			// Наповенння макетів віджетами
+    void timersInit();			// Ініціалізація таймерів
+    void baseInit();			// Базова ініціалізація вікна і тд
+    void trayInit();			// Ініціалізація трею
 
 public slots:
     void startTimer();			// Старт/Пауза/Продовження таймеру
@@ -89,13 +99,15 @@ public slots:
     void openCredits();			// Відкриття вікна інформації про додаток
     void openStatistics();		// Відкриття вікна статистичних даних
 
-    void exitApplication();
+    void exitApplication();		// Вихід з застосунку
 
+    void changeTheme(Settings::Themes theme_name); // Обробник подій для зміни теми
+
+    // Обробник подій при натисканні на іконку трею
     void onTrayIconActivated(QSystemTrayIcon::ActivationReason reason);
 
-    void changeTheme(Settings::Themes theme_name);
-
 protected:
+    // Обробник закриття вікна
     void closeEvent(QCloseEvent *event) override;
 };
 #endif // MAINWINDOW_H

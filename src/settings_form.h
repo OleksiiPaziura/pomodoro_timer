@@ -64,7 +64,7 @@ private:
     QLabel *languages_front_lbl;			// Передня позначка
     QComboBox *languages; 					// Обрання мови застосунку
 
-    QPushButton *factory_reset_btn;
+    QPushButton *factory_reset_btn;			// Кнопка скидання налаштувань
 
 
     /// FOR BUTTONS_LAYOUT
@@ -73,7 +73,12 @@ private:
 
 public:
     explicit SettingsForm(QDialog *parent = nullptr);
-    void save_settings(bool is_reset = 0);
+    void save_settings(bool is_reset = 0);	// Збереження налаштувань в клас Settings
+    void widgetsInit();						// Ініціалізація віджетів
+    void layoutsInit();						// Ініціалізація макетів
+    void layoutsFill();						// Заповнення макетів віджетами
+    void connectionsInit();					// Ініціалізація сигналів та слотів
+    void baseInit();						// Базова ініціалізація
 
 public slots:
     void save_changings();					// Збереження змін
@@ -93,9 +98,10 @@ public slots:
 
     void pull_up_settings_changed(int);		// Обробка змін для підтягування налаштувань
 
-    void factory_reset();
+    void factory_reset(); 					// Метод для скидання налаштувань
 
 protected:
+    // Обробник закриття вікна
     void closeEvent(QCloseEvent *event) override;
 };
 

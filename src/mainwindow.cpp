@@ -3,140 +3,13 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
-    /// BASE INITS
-    setFixedSize(300, 400);
-    time_left = new QLabel;
-    loadSettings();
-
-    setWindowOpacity(Settings::current_opacity);
-
-    if (Settings::locale == "en")
-        translator.load("./translations/Pomodoro_en", ".");
-    else if (Settings::locale == "ua")
-        translator.load("./translations/Pomodoro_ua", ".");
-    else if (Settings::locale == "ru")
-        translator.load("./translations/Pomodoro_ru", ".");
-    qApp->installTranslator(&translator);
-
-    QWidget *central_widget = new QWidget;
-    main_layout = new QVBoxLayout;
-    rounds_layout = new QHBoxLayout;
-    setCentralWidget(central_widget);
-    central_widget->setLayout(main_layout);
-
-    setPalette(Settings::round_color);
-    timeout_counter = 0;
-    pause_counter = 0;
-    timeout_counter = 0;
-    round_timer = new QTimer(this);
-    short_break_timer = new QTimer(this);
-    long_break_timer = new QTimer(this);
-    current_round = Settings::Round;
-
-
-    edit_menu = new QMenu(tr("Edit"));
-    settings_action = new QAction(tr("Settings"));
-    edit_menu->addAction(settings_action);
-    menuBar()->addMenu(edit_menu);
-
-    themes_menu = new QMenu(tr("Themes"));
-    reset_theme = new QAction(tr("Reset theme"));
-    set_theme = new QMenu(tr("Set theme"));
-    contrast_theme = new QAction("Contrast");
-    simple_light_theme = new QAction("SimpleLight");
-    pomodoro_mode_theme = new QAction("PomodoroMode");
-    set_theme->addAction(contrast_theme);
-    set_theme->addAction(simple_light_theme);
-    set_theme->addAction(pomodoro_mode_theme);
-    themes_menu->addMenu(set_theme);
-    themes_menu->addAction(reset_theme);
-    menuBar()->addMenu(themes_menu);
-
-    help_menu = new QMenu(tr("Help"));
-    credits_action = new QAction(tr("Credits"));
-    statistics_action = new QAction(tr("Statistics"));
-    help_menu->addAction(statistics_action);
-    help_menu->addAction(credits_action);
-    menuBar()->addMenu(help_menu);
-
-
-
-    /// WIDGETS
-    dial = new QDial;
-    dial->setMinimumHeight(250);
-    dial->setRange(0, Settings::round_time);
-
-    time_left->setText(convertTime(Settings::round_time));
-    time_left->setAlignment(Qt::AlignCenter);
-    time_left->setFont(Settings::current_font);
-    time_left->setMaximumHeight(25);
-
-    start_btn = new QPushButton(tr("Start"));
-    start_btn->setMinimumWidth(150);
-    start_btn->setMinimumHeight(25);
-    start_btn_state = Start;
-
-    stop_btn = new QPushButton(tr("Stop"));
-    stop_btn->setMinimumWidth(150);
-    stop_btn->setMinimumHeight(25);
-
-    rounds = new QFrame;
-    rounds->setLayout(rounds_layout);
-    rounds->setMaximumHeight(35);
-    rounds->setMaximumWidth(100);
-    first_round = new QRadioButton;
-    first_round->setChecked(true);
-    second_round = new QRadioButton;
-    third_round = new QRadioButton;
-    fourth_round = new QRadioButton;
-
-
-
-    /// LAYOUTS
-    // ROUNDS_LAYOUT
-    rounds_layout->addWidget(first_round);
-    rounds_layout->addWidget(second_round);
-    rounds_layout->addWidget(third_round);
-    rounds_layout->addWidget(fourth_round);
-
-    // MAIN_LAYOUT
-    main_layout->addWidget(time_left);
-    main_layout->addWidget(dial);
-    main_layout->addWidget(rounds, 0, Qt::AlignCenter);
-    main_layout->addWidget(start_btn, 0, Qt::AlignCenter);
-    main_layout->addWidget(stop_btn, 0, Qt::AlignCenter);
-
-
-
-    /// CONNECTIONS
-    // Обробка натискання на пункти меню
-    connect(settings_action, SIGNAL(triggered()), this, SLOT(openSettings()));
-    connect(credits_action, SIGNAL(triggered()), this, SLOT(openCredits()));
-    connect(statistics_action, SIGNAL(triggered()), this, SLOT(openStatistics()));
-
-    // Теми
-    connect(pomodoro_mode_theme, &QAction::triggered, this, [this](){
-        changeTheme(Settings::PomodoroMode);
-    });
-    connect(contrast_theme, &QAction::triggered, this, [this](){
-        changeTheme(Settings::Contrast);
-    });
-    connect(simple_light_theme, &QAction::triggered, this, [this](){
-        changeTheme(Settings::SimpleLight);
-    });
-    connect(reset_theme, &QAction::triggered, this, [this](){
-        changeTheme(Settings::Default);
-    });
-
-    // Робота з таймером
-    connect(start_btn, SIGNAL(clicked()), this, SLOT(startTimer()));
-    connect(stop_btn, SIGNAL(clicked()), this, SLOT(stopTimer()));
-    connect(round_timer, SIGNAL(timeout()), this, SLOT(onRoundTimeout()));
-    connect(short_break_timer, SIGNAL(timeout()), this, SLOT(onShortBreakTimeout()));
-    connect(long_break_timer, SIGNAL(timeout()), this, SLOT(onLongBreakTimeout()));
-
-    // Обробки змін
-    connect(dial, SIGNAL(valueChanged(int)), this, SLOT(onDialChange(int)));
+    baseInit();
+    timersInit();
+    layoutsInit();
+    menuInit();
+    widgetsInit();
+    layoutsFill();
+    connectionsInit();
 }
 
 // Функція для конвертування секунд у формат mm:ss
@@ -172,6 +45,7 @@ QString MainWindow::convertTime(int total_seconds, bool with_letters)
     }
 }
 
+// Завантаження налаштувань
 void MainWindow::loadSettings()
 {
     QSettings settings("PMDR0", "base");
@@ -258,10 +132,18 @@ void MainWindow::loadSettings()
     }
 }
 
+// Оновлення екрану для роботи QTranslator
 void MainWindow::reloadScreen()
 {
     edit_menu->setTitle(tr("Edit"));
     settings_action->setText(tr("Settings"));
+
+    themes_menu->setTitle(tr("Themes"));
+    reset_theme->setText(tr("Reset theme"));
+    set_theme->setTitle(tr("Set theme"));
+
+    help_menu->setTitle(tr("Help"));
+    statistics_action->setText(tr("Statistics"));
     credits_action->setText(tr("Credits"));
 
     if (start_btn_state == Pause)
@@ -274,6 +156,7 @@ void MainWindow::reloadScreen()
     stop_btn->setText(tr("Stop"));
 }
 
+// Оновлення статистичних даних
 void MainWindow::updateStatistics()
 {
     QSettings settings("PMDR0", "base");
@@ -313,7 +196,8 @@ void MainWindow::updateStatistics()
     }
 }
 
-void MainWindow::statisticsInit()
+// Завантаження статистичних даних
+void MainWindow::loadStatistics()
 {
     QSettings settings("PMDR0", "base");
 
@@ -349,6 +233,172 @@ void MainWindow::statisticsInit()
     settings.endGroup();
 
     settings.endGroup();
+}
+
+// Ініціалізація віджетів
+void MainWindow::widgetsInit()
+{
+    dial = new QDial;
+    dial->setMinimumHeight(250);
+    dial->setRange(0, Settings::round_time);
+
+    time_left->setText(convertTime(Settings::round_time));
+    time_left->setAlignment(Qt::AlignCenter);
+    time_left->setFont(Settings::current_font);
+    time_left->setMaximumHeight(25);
+
+    start_btn = new QPushButton(tr("Start"));
+    start_btn->setMinimumWidth(150);
+    start_btn->setMinimumHeight(25);
+    start_btn_state = Start;
+
+    stop_btn = new QPushButton(tr("Stop"));
+    stop_btn->setMinimumWidth(150);
+    stop_btn->setMinimumHeight(25);
+
+    rounds = new QFrame;
+    rounds->setLayout(rounds_layout);
+    rounds->setMaximumHeight(35);
+    rounds->setMaximumWidth(100);
+    first_round = new QRadioButton;
+    first_round->setChecked(true);
+    second_round = new QRadioButton;
+    third_round = new QRadioButton;
+    fourth_round = new QRadioButton;
+}
+
+// Ініціалізація сигналів та слотів
+void MainWindow::connectionsInit()
+{
+    // Обробка натискання на пункти меню
+    connect(settings_action, SIGNAL(triggered()), this, SLOT(openSettings()));
+    connect(credits_action, SIGNAL(triggered()), this, SLOT(openCredits()));
+    connect(statistics_action, SIGNAL(triggered()), this, SLOT(openStatistics()));
+
+    // Теми
+    connect(pomodoro_mode_theme, &QAction::triggered, this, [this](){
+        changeTheme(Settings::PomodoroMode);
+    });
+    connect(contrast_theme, &QAction::triggered, this, [this](){
+        changeTheme(Settings::Contrast);
+    });
+    connect(simple_light_theme, &QAction::triggered, this, [this](){
+        changeTheme(Settings::SimpleLight);
+    });
+    connect(reset_theme, &QAction::triggered, this, [this](){
+        changeTheme(Settings::Default);
+    });
+
+    // Робота з таймером
+    connect(start_btn, SIGNAL(clicked()), this, SLOT(startTimer()));
+    connect(stop_btn, SIGNAL(clicked()), this, SLOT(stopTimer()));
+    connect(round_timer, SIGNAL(timeout()), this, SLOT(onRoundTimeout()));
+    connect(short_break_timer, SIGNAL(timeout()), this, SLOT(onShortBreakTimeout()));
+    connect(long_break_timer, SIGNAL(timeout()), this, SLOT(onLongBreakTimeout()));
+
+    // Обробки змін
+    connect(dial, SIGNAL(valueChanged(int)), this, SLOT(onDialChange(int)));
+}
+
+// Ініціалізація верхнього меню
+void MainWindow::menuInit()
+{
+    edit_menu = new QMenu(tr("Edit"));
+    settings_action = new QAction(tr("Settings"));
+    edit_menu->addAction(settings_action);
+    menuBar()->addMenu(edit_menu);
+
+    themes_menu = new QMenu(tr("Themes"));
+    reset_theme = new QAction(tr("Reset theme"));
+    set_theme = new QMenu(tr("Set theme"));
+    contrast_theme = new QAction("Contrast");
+    simple_light_theme = new QAction("SimpleLight");
+    pomodoro_mode_theme = new QAction("PomodoroMode");
+    set_theme->addAction(contrast_theme);
+    set_theme->addAction(simple_light_theme);
+    set_theme->addAction(pomodoro_mode_theme);
+    themes_menu->addMenu(set_theme);
+    themes_menu->addAction(reset_theme);
+    // Розкоментуй, якщо хочеш щоб з'явились теми в застосунку
+    //menuBar()->addMenu(themes_menu);
+
+    help_menu = new QMenu(tr("Help"));
+    credits_action = new QAction(tr("Credits"));
+    statistics_action = new QAction(tr("Statistics"));
+    help_menu->addAction(statistics_action);
+    help_menu->addAction(credits_action);
+    menuBar()->addMenu(help_menu);
+}
+
+// Ініціалізація макетів
+void MainWindow::layoutsInit()
+{
+    QWidget *central_widget = new QWidget;
+    main_layout = new QVBoxLayout;
+    rounds_layout = new QHBoxLayout;
+    setCentralWidget(central_widget);
+    central_widget->setLayout(main_layout);
+}
+
+// Заповнення макетів віджетами
+void MainWindow::layoutsFill()
+{
+    // ROUNDS_LAYOUT
+    rounds_layout->addWidget(first_round);
+    rounds_layout->addWidget(second_round);
+    rounds_layout->addWidget(third_round);
+    rounds_layout->addWidget(fourth_round);
+
+    // MAIN_LAYOUT
+    main_layout->addWidget(time_left);
+    main_layout->addWidget(dial);
+    main_layout->addWidget(rounds, 0, Qt::AlignCenter);
+    main_layout->addWidget(start_btn, 0, Qt::AlignCenter);
+    main_layout->addWidget(stop_btn, 0, Qt::AlignCenter);
+}
+
+// Ініціалізація таймерів
+void MainWindow::timersInit()
+{
+    timeout_counter = 0;
+    pause_counter = 0;
+    timeout_counter = 0;
+    round_timer = new QTimer(this);
+    short_break_timer = new QTimer(this);
+    long_break_timer = new QTimer(this);
+}
+
+// Базова ініціалізація
+void MainWindow::baseInit()
+{
+    setFixedSize(300, 400);
+    time_left = new QLabel;
+    loadSettings();
+    updateStatistics();
+
+    setWindowOpacity(Settings::current_opacity);
+
+    if (Settings::locale == "en")
+        translator.load("./translations/Pomodoro_en", ".");
+    else if (Settings::locale == "ua")
+        translator.load("./translations/Pomodoro_ua", ".");
+    else if (Settings::locale == "ru")
+        translator.load("./translations/Pomodoro_ru", ".");
+    qApp->installTranslator(&translator);
+
+    setPalette(Settings::round_color);
+    current_round = Settings::Round;
+}
+
+void MainWindow::trayInit()
+{
+    tray = new QSystemTrayIcon(QIcon("./icons/icon2.ico"));
+    tray_exit = new QAction(tr("Exit"));
+    tray_menu = new QMenu;
+    tray_menu->addAction(tray_exit);
+    tray->setContextMenu(tray_menu);
+    connect(tray, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(onTrayIconActivated(QSystemTrayIcon::ActivationReason)));
+    connect(tray_exit, SIGNAL(triggered()), this, SLOT(exitApplication()));
 }
 
 // Старт/Пауза/Продовження таймеру
@@ -484,6 +534,23 @@ void MainWindow::onRoundTimeout()
 
             long_break_timer->start(1000);
         }
+
+        if (Settings::is_notification_enabled)
+        {
+            trayInit();
+            tray->show();
+
+            int current_break;
+            if (current_round == Settings::ShortBreak)
+                current_break = Settings::short_break_time;
+            else if (current_round == Settings::LongBreak)
+                current_break = Settings::long_break_time;
+
+            tray->showMessage(tr("Round has been ended"), tr("Now you can have a rest for ") +
+                                                              QString::number(current_break / Settings::SEC_IN_MIN) +
+                                                              tr(" minutes!"));
+            delete tray;
+        }
     }
 }
 
@@ -497,6 +564,17 @@ void MainWindow::onShortBreakTimeout()
 
     if (timeout_counter > Settings::short_break_time)
     {
+        if (Settings::is_notification_enabled)
+        {
+            trayInit();
+            tray->show();
+
+            tray->showMessage(tr("Short break has been ended"), tr("Now you should focus on your task for ") +
+                                                             QString::number(Settings::round_time / Settings::SEC_IN_MIN) +
+                                                              tr(" minutes!"));
+            delete tray;
+        }
+
         Settings::round_sound.play();
         short_break_timer->stop();
         timeout_counter = 0;
@@ -522,6 +600,16 @@ void MainWindow::onLongBreakTimeout()
 
     if (timeout_counter > Settings::long_break_time)
     {
+        if (Settings::is_notification_enabled)
+        {
+            trayInit();
+            tray->show();
+
+            tray->showMessage(tr("Long break has been ended"), tr("Now you should focus on your task for ") +
+                                                             QString::number(Settings::round_time / Settings::SEC_IN_MIN) +
+                                                              tr(" minutes!"));
+            delete tray;
+        }
         Settings::round_sound.play();
         long_break_timer->stop();
         timeout_counter = 0;
@@ -602,33 +690,36 @@ void MainWindow::openSettings()
 // Відкриття вікна інформації про додаток
 void MainWindow::openCredits()
 {
-    QMessageBox::information(this, tr("Credits"), tr("Version 2.2.0\n"
+    QMessageBox::information(this, tr("Credits"), tr("Version 2.3.0\n"
                                                      "Created by: Oleksii Paziura"));
 }
 
+// Відкриття вікна статистичних даних
 void MainWindow::openStatistics()
 {
     QMessageBox statistics;
     statistics.setWindowTitle(tr("Statistics"));
-    statistics.setInformativeText("Today rounds: " + QString::number(Settings::today_rounds) +
-                                  "\nToday seconds: " + convertTime(Settings::today_seconds, true) +
-                                  "\nWeekly rounds: " + QString::number(Settings::weekly_rounds) +
-                                  "\nWeekly seconds: " + convertTime(Settings::weekly_seconds, true) +
-                                  "\nMonthly rounds: " + QString::number(Settings::monthly_rounds) +
-                                  "\nMonthly seconds: " + convertTime(Settings::monthly_seconds, true) +
-                                  "\nAnnual rounds: " + QString::number(Settings::annual_rounds) +
-                                  "\nAnnual seconds: " + convertTime(Settings::annual_seconds, true) +
-                                  "\nTotal rounds: " + QString::number(Settings::total_rounds) +
-                                  "\nTotal seconds: " + convertTime(Settings::total_seconds, true));
+    statistics.setInformativeText(tr("Today rounds: ") + QString::number(Settings::today_rounds) +
+                                  tr("\nToday seconds: ") + convertTime(Settings::today_seconds, true) +
+                                  tr("\n\nWeekly rounds: ") + QString::number(Settings::weekly_rounds) +
+                                  tr("\nWeekly seconds: ") + convertTime(Settings::weekly_seconds, true) +
+                                  tr("\n\nMonthly rounds: ") + QString::number(Settings::monthly_rounds) +
+                                  tr("\nMonthly seconds: ") + convertTime(Settings::monthly_seconds, true) +
+                                  tr("\n\nAnnual rounds: ") + QString::number(Settings::annual_rounds) +
+                                  tr("\nAnnual seconds: ") + convertTime(Settings::annual_seconds, true) +
+                                  tr("\n\nTotal rounds: ") + QString::number(Settings::total_rounds) +
+                                  tr("\nTotal seconds: ") + convertTime(Settings::total_seconds, true));
     statistics.setIcon(QMessageBox::Information);
     statistics.exec();
 }
 
+// Вихід з застосунку
 void MainWindow::exitApplication()
 {
     qApp->quit();
 }
 
+// Обробник натискання на іконку трею
 void MainWindow::onTrayIconActivated(QSystemTrayIcon::ActivationReason reason)
 {
     if (reason == QSystemTrayIcon::Trigger)
@@ -638,6 +729,7 @@ void MainWindow::onTrayIconActivated(QSystemTrayIcon::ActivationReason reason)
     }
 }
 
+// Обробник зміни теми
 void MainWindow::changeTheme(Settings::Themes theme_name)
 {
     if (theme_name == Settings::Default)
@@ -687,9 +779,10 @@ void MainWindow::changeTheme(Settings::Themes theme_name)
     settings.endGroup();
 }
 
+// Обробник закриття вікна
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    statisticsInit();
+    loadStatistics();
 
     if (Settings::is_tray_enabled == Settings::Postponed)
     {
@@ -717,13 +810,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     if (Settings::is_tray_enabled == Settings::Enabled)
     {
         hide();
-        tray = new QSystemTrayIcon(QIcon("./icons/icon2.ico"));
-        tray_exit = new QAction(tr("Exit"));
-        tray_menu = new QMenu;
-        tray_menu->addAction(tray_exit);
-        tray->setContextMenu(tray_menu);
-        connect(tray, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(onTrayIconActivated(QSystemTrayIcon::ActivationReason)));
-        connect(tray_exit, SIGNAL(triggered()), this, SLOT(exitApplication()));
+        trayInit();
         tray->show();
 
         if (Settings::is_notification_enabled)
