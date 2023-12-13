@@ -40,10 +40,10 @@ You can install this project due setup file or build it on your own:
 
 ## Usage
 The main menu of the project is shown at the following picture:
-![main_menu](https://github.com/OleksiiPaziura/pomodoro_timer/assets/131613795/88119446-cfd3-46f3-8243-1f3e445213f1)
+![main_menu|250](https://github.com/OleksiiPaziura/pomodoro_timer/assets/131613795/88119446-cfd3-46f3-8243-1f3e445213f1)
 
 You can start, pause/continue, stop timer, switch rounds and roll the dial (interactive time-picker). Also you can change some settings:
-![settings](https://github.com/OleksiiPaziura/pomodoro_timer/assets/131613795/fa1c4983-3791-453d-ae3d-97cb3d156259)
+![settings|250](https://github.com/OleksiiPaziura/pomodoro_timer/assets/131613795/fa1c4983-3791-453d-ae3d-97cb3d156259)
 
 
 
