@@ -1,16 +1,6 @@
 [![Static Badge](https://img.shields.io/badge/Qt-6.5.3-orange)](https://www.qt.io/download) 
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
 ![GitHub forks](https://img.shields.io/github/forks/OleksiiPaziura/pomodoro_timer?label=GitHub%20Forks&logo=github) 
-## Installation
-
-You can install this project due setup file or build it on your own:
-+ Download [Qt](https://www.qt.io/download). This project was written with `6.5.3` version;
-+ Open `Pomodoro.pro` as a project;
-+ Build & compile;
-+ Move executable file to the folder that you want to be your main one. Drag&Drop .exe to `windeployqt6.exe` in the root folder of Qt. This file located in `"<path_to_qt_root>/<version>/<compiler>/bin/windeployqt6.exe"`.
-+ Move folders `"translations", "sounds"` and `"icons"`to your project folder;
-+ Enjoy the app!
-## Demo
 
 
 ## Features
@@ -30,6 +20,17 @@ You can install this project due setup file or build it on your own:
 + (advanced) You can enable themes feature from code. 
 
 
+## Installation
+
+You can install this project due setup file or build it on your own:
++ Download [Qt](https://www.qt.io/download). This project was written with `6.5.3` version;
++ Open `Pomodoro.pro` as a project;
++ Build & compile;
++ Move executable file to the folder that you want to be your main one. Drag&Drop .exe to `windeployqt6.exe` in the root folder of Qt. This file located in `"<path_to_qt_root>/<version>/<compiler>/bin/windeployqt6.exe"`.
++ Move folders `"translations", "sounds"` and `"icons"`to your project folder;
++ Enjoy the app!
+
+
 ## Tech Stack
 
 **Language:** C++17
@@ -39,9 +40,11 @@ You can install this project due setup file or build it on your own:
 
 ## Usage
 The main menu of the project is shown at the following picture:
-![[Pasted image 20231213172158.png|300]]
+![main_menu](https://github.com/OleksiiPaziura/pomodoro_timer/assets/131613795/88119446-cfd3-46f3-8243-1f3e445213f1)
+
 You can start, pause/continue, stop timer, switch rounds and roll the dial (interactive time-picker). Also you can change some settings:
-![[Pasted image 20231213172341.png|300]]
+![settings](https://github.com/OleksiiPaziura/pomodoro_timer/assets/131613795/fa1c4983-3791-453d-ae3d-97cb3d156259)
+
 
 
 ## Authors
